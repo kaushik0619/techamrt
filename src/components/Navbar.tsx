@@ -180,13 +180,13 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                         <p className="text-sm font-medium">{user.username}</p>
                         <p className="text-xs text-neutral-500">{user.email}</p>
                       </div>
-                      <button
-                        onClick={() => {
-                          onNavigate('dashboard');
-                          setIsUserMenuOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 flex items-center gap-2"
-                      >
+                     <button
+  onClick={() => {
+    onNavigate('admin');  // ✅ Correct
+    setIsUserMenuOpen(false);
+  }}
+  className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 flex items-center gap-2"
+>
                         <LayoutDashboard className="w-4 h-4" />
                         Dashboard
                       </button>
