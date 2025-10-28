@@ -1,42 +1,48 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
-        'primary': {
-          DEFAULT: '#3B82F6',
-          hover: '#2563EB',
-        },
-        'secondary': '#1F2937',
-        'neutral': {
-          100: '#F9FAFB',
-          200: '#F3F4F6',
-          300: '#E5E7EB',
-          400: '#D1D5DB',
-          500: '#9CA3AF',
-          600: '#6B7280',
-          700: '#4B5563',
-          800: '#374151',
-          900: '#1F2937',
-        },
-      },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-      },
-      boxShadow: {
-        'subtle': '0 4px 12px rgba(0, 0, 0, 0.05)',
-        'card': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-        'card-hover': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+        primary: '#9E7FFF',
+        secondary: '#38bdf8',
+        accent: '#f472b6',
+        background: '#171717',
+        surface: '#262626',
+        text: '#FFFFFF',
+        textSecondary: '#A3A3A3',
+        border: '#2F2F2F',
+        success: '#10b981',
+        warning: '#f59e0b',
+        error: '#ef4444',
       },
       borderRadius: {
-        'lg': '0.5rem',
-        'xl': '0.75rem',
-        '2xl': '1rem',
+        'lg': '0.75rem',
+        'xl': '1rem',
+        '2xl': '1.5rem',
+      },
+      boxShadow: {
+        'glow-primary': '0 0 20px 0 rgba(158, 127, 255, 0.3)',
+      },
+      animation: {
+        'gradient-text': 'gradient-text 5s ease infinite',
+      },
+      keyframes: {
+        'gradient-text': {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center',
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center',
+          },
+        },
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-  ],
+  plugins: [],
 };

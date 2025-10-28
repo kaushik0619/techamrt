@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ShoppingCart, Star, Truck, Shield, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Star, Truck, Shield, RefreshCw, Minus, Plus } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Product {
   _id: string;
@@ -20,11 +21,34 @@ interface ProductDetailProps {
   onBack: () => void;
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+    },
+  },
+};
+
 export function ProductDetail({ productId, onBack }: ProductDetailProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
   const { addToCart } = useCart();
   const { user } = useAuth();
 
@@ -62,7 +86,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-neutral-900">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
@@ -70,43 +94,75 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
 
   if (error || !product) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 text-text">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-text">
         <p className="text-xl text-textSecondary mb-4">{error || 'Product not found'}</p>
-        <button onClick={onBack} className="text-primary hover:text-secondary transition-colors">
-          Go back
+        <button onClick={onBack} className="text-primary hover:underline transition-colors">
+          Go back to shop
         </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-text">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <button
+    <motion.div 
+      className="min-h-screen bg-background text-text"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <motion.button
           onClick={onBack}
           className="flex items-center gap-2 text-textSecondary hover:text-primary transition-colors mb-8 group"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">Back to Products</span>
-        </button>
+        </motion.button>
 
-        <div className="grid md:grid-cols-2 gap-12">
-          <div className="space-y-4">
-            <div className="bg-surface rounded-2xl shadow-2xl shadow-black/20 overflow-hidden aspect-square border border-border">
-              <img
-                src={product.images[0] || 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg'}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
+        <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+          <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="visible">
+            <motion.div 
+              className="bg-surface rounded-2xl shadow-2xl shadow-black/20 overflow-hidden aspect-square border border-border"
+              variants={itemVariants}
+            >
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={selectedImage}
+                  src={product.images[selectedImage] || 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg'}
+                  alt={`${product.name} image ${selectedImage + 1}`}
+                  className="w-full h-full object-cover"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </AnimatePresence>
+            </motion.div>
+            <motion.div className="grid grid-cols-4 gap-4" variants={itemVariants}>
+              {product.images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImage(i)}
+                  className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                    selectedImage === i ? 'border-primary scale-105' : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <img src={img} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </motion.div>
+          </motion.div>
 
-          <div className="space-y-6">
-            <div>
-              <div className="text-sm font-medium text-primary uppercase tracking-wide mb-2">
+          <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+            <motion.div variants={itemVariants}>
+              <div className="text-sm font-medium text-primary uppercase tracking-wider mb-2">
                 {product.category.replace('_', ' ')}
               </div>
-              <h1 className="text-4xl font-bold text-text mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-text mb-4">
                 {product.name}
               </h1>
 
@@ -119,91 +175,91 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
                 <span className="text-textSecondary">(4.8 / 127 reviews)</span>
               </div>
 
-              <div className="text-5xl font-bold text-text mb-6">
+              <div className="text-5xl font-extrabold text-text mb-6">
                 ₹{product.price.toLocaleString()}
               </div>
 
               <p className="text-lg text-textSecondary leading-relaxed mb-8">
                 {product.description}
               </p>
+            </motion.div>
 
-              {product.stock > 0 ? (
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center gap-4">
-                    <label className="text-text font-medium">Quantity:</label>
-                    <div className="flex items-center border-2 border-border rounded-lg overflow-hidden bg-surface">
-                      <button
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="px-4 py-2 hover:bg-neutral-700 transition-colors font-medium"
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        value={quantity}
-                        onChange={(e) => setQuantity(Math.max(1, Math.min(product.stock, parseInt(e.target.value) || 1)))}
-                        className="w-20 text-center py-2 focus:outline-none font-medium bg-transparent"
-                      />
-                      <button
-                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                        className="px-4 py-2 hover:bg-neutral-700 transition-colors font-medium"
-                      >
-                        +
-                      </button>
-                    </div>
-                    <span className="text-textSecondary">
-                      ({product.stock} available)
-                    </span>
+            {product.stock > 0 ? (
+              <motion.div className="space-y-4" variants={itemVariants}>
+                <div className="flex items-center gap-4">
+                  <label className="text-text font-medium">Quantity:</label>
+                  <div className="flex items-center border border-border rounded-lg overflow-hidden bg-surface">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-3 py-2 hover:bg-neutral-700 transition-colors"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <input
+                      type="text"
+                      value={quantity}
+                      readOnly
+                      className="w-12 text-center py-2 focus:outline-none font-medium bg-transparent"
+                    />
+                    <button
+                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                      className="px-3 py-2 hover:bg-neutral-700 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
                   </div>
+                  <span className="text-textSecondary text-sm">
+                    ({product.stock} available)
+                  </span>
+                </div>
 
-                  <button
-                    onClick={handleAddToCart}
-                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary text-white rounded-xl font-bold text-lg hover:bg-purple-500 transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
-                  >
-                    <ShoppingCart className="w-6 h-6" />
-                    Add to Cart
-                  </button>
-                </div>
-              ) : (
-                <div className="bg-error/10 border border-error/30 rounded-xl p-4 mb-8">
-                  <p className="text-error font-medium text-center">Out of Stock</p>
-                </div>
-              )}
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary text-white rounded-lg font-bold text-lg hover:opacity-90 transition-all shadow-glow-primary transform hover:scale-[1.02]"
+                >
+                  <ShoppingCart className="w-6 h-6" />
+                  Add to Cart
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div className="bg-error/10 border border-error/30 rounded-lg p-4" variants={itemVariants}>
+                <p className="text-error font-medium text-center">Out of Stock</p>
+              </motion.div>
+            )}
 
-              <div className="grid grid-cols-3 gap-4 mb-8">
-                <div className="bg-surface border border-border rounded-xl p-4 text-center shadow-md">
-                  <Truck className="w-8 h-8 mx-auto mb-2 text-secondary" />
-                  <p className="text-sm font-medium text-text">Free Shipping</p>
-                </div>
-                <div className="bg-surface border border-border rounded-xl p-4 text-center shadow-md">
-                  <Shield className="w-8 h-8 mx-auto mb-2 text-success" />
-                  <p className="text-sm font-medium text-text">2 Year Warranty</p>
-                </div>
-                <div className="bg-surface border border-border rounded-xl p-4 text-center shadow-md">
-                  <RefreshCw className="w-8 h-8 mx-auto mb-2 text-warning" />
-                  <p className="text-sm font-medium text-text">30 Day Returns</p>
-                </div>
+            <motion.div className="grid grid-cols-3 gap-4 pt-4" variants={itemVariants}>
+              <div className="bg-surface border border-border rounded-xl p-4 text-center">
+                <Truck className="w-8 h-8 mx-auto mb-2 text-secondary" />
+                <p className="text-sm font-medium text-text">Free Shipping</p>
               </div>
+              <div className="bg-surface border border-border rounded-xl p-4 text-center">
+                <Shield className="w-8 h-8 mx-auto mb-2 text-success" />
+                <p className="text-sm font-medium text-text">2 Year Warranty</p>
+              </div>
+              <div className="bg-surface border border-border rounded-xl p-4 text-center">
+                <RefreshCw className="w-8 h-8 mx-auto mb-2 text-warning" />
+                <p className="text-sm font-medium text-text">30 Day Returns</p>
+              </div>
+            </motion.div>
 
-              {product.specs && Object.keys(product.specs).length > 0 && (
-                <div className="bg-surface border border-border rounded-xl p-6 shadow-lg">
-                  <h2 className="text-xl font-bold text-text mb-4">Specifications</h2>
-                  <dl className="space-y-3">
-                    {Object.entries(product.specs).map(([key, value]) => (
-                      <div key={key} className="flex justify-between py-2 border-b border-border last:border-0">
-                        <dt className="text-textSecondary capitalize font-medium">
-                          {key.replace('_', ' ')}:
-                        </dt>
-                        <dd className="text-text font-medium">{String(value)}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              )}
-            </div>
-          </div>
+            {product.specs && Object.keys(product.specs).length > 0 && (
+              <motion.div className="bg-surface border border-border rounded-xl p-6" variants={itemVariants}>
+                <h2 className="text-xl font-bold text-text mb-4">Specifications</h2>
+                <dl className="space-y-3">
+                  {Object.entries(product.specs).map(([key, value]) => (
+                    <div key={key} className="flex justify-between py-2 border-b border-border last:border-0">
+                      <dt className="text-textSecondary capitalize font-medium">
+                        {key.replace('_', ' ')}:
+                      </dt>
+                      <dd className="text-text font-medium">{String(value)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </motion.div>
+            )}
+          </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

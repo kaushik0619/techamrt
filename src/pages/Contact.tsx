@@ -1,4 +1,5 @@
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, ChevronDown, Send } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const faqs = [
   {
@@ -19,105 +20,179 @@ const faqs = [
   },
 ];
 
+const contactInfo = [
+  {
+    icon: Mail,
+    title: 'Email',
+    description: 'Our support team will get back to you within 24 hours.',
+    contact: 'support@abc.com',
+    href: 'mailto:support@abc.com',
+  },
+  {
+    icon: Phone,
+    title: 'Phone',
+    description: 'Mon-Fri from 8am to 5pm PST.',
+    contact: '+1 (234) 567-890',
+    href: 'tel:+1234567890',
+  },
+  {
+    icon: MapPin,
+    title: 'Office',
+    description: '123 Tech Avenue, Silicon Valley, CA 94043',
+    contact: 'Get Directions',
+    href: 'https://maps.google.com',
+  },
+];
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+    },
+  },
+};
+
 export function Contact() {
   return (
-    <div className="bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-neutral-900">Contact Us</h1>
-          <p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
+    <div className="bg-background text-text">
+      {/* Header */}
+      <section className="relative bg-surface pt-32 pb-20 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <motion.div 
+          className="relative z-10"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight animate-gradient-text bg-gradient-to-r from-primary via-secondary to-accent">
+            Get in Touch
+          </h1>
+          <p className="mt-6 text-lg text-textSecondary max-w-2xl mx-auto">
             We're here to help! Whether you have a question about our products, an order, or anything else, our team is ready to answer all your questions.
           </p>
-        </div>
+        </motion.div>
+      </section>
 
-        {/* Contact Info & Form */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      {/* Contact Info & Form */}
+      <section className="py-24 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           {/* Contact Details */}
-          <div className="space-y-8">
-            <div className="flex items-start gap-4">
-              <div className="bg-primary-light text-primary-DEFAULT p-3 rounded-full">
-                <Mail className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-neutral-800">Email</h3>
-                <p className="text-neutral-600">Our support team will get back to you within 24 hours.</p>
-                <a href="mailto:support@abc.com" className="text-primary-DEFAULT font-medium hover:underline">support@abc.com</a>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="bg-primary-light text-primary-DEFAULT p-3 rounded-full">
-                <Phone className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-neutral-800">Phone</h3>
-                <p className="text-neutral-600">Mon-Fri from 8am to 5pm.</p>
-                <a href="tel:+1234567890" className="text-primary-DEFAULT font-medium hover:underline">+1 (234) 567-890</a>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="bg-primary-light text-primary-DEFAULT p-3 rounded-full">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-neutral-800">Office</h3>
-                <p className="text-neutral-600">123 Tech Avenue, Silicon Valley, CA 94043</p>
-              </div>
-            </div>
-          </div>
+          <motion.div 
+            className="space-y-8"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <h2 className="text-3xl font-bold text-text">Contact Information</h2>
+            {contactInfo.map((item, index) => (
+              <motion.div key={index} className="flex items-start gap-5" variants={itemVariants}>
+                <div className="bg-surface text-primary p-4 rounded-xl border border-border">
+                  <item.icon className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-text">{item.title}</h3>
+                  <p className="text-textSecondary">{item.description}</p>
+                  <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline transition-colors">
+                    {item.contact}
+                  </a>
+                </div>
+              </motion.div>
+            ))}
+             <motion.div className="rounded-xl overflow-hidden border border-border" variants={itemVariants}>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3172.332533228932!2d-122.084249684695!3d37.42247697982523!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fba024251f7b9%3A0x1673550550141a85!2sGoogleplex!5e0!3m2!1sen!2sus!4v1678886322345!5m2!1sen!2sus"
+                width="100%"
+                height="250"
+                style={{ border: 0 }}
+                allowFullScreen={false}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </motion.div>
+          </motion.div>
 
           {/* Contact Form */}
-          <div className="lg:col-span-2 bg-neutral-50 p-8 rounded-xl border border-neutral-200">
-            <h2 className="text-2xl font-bold text-neutral-900 mb-6">Send us a message</h2>
+          <motion.div 
+            className="bg-surface p-8 rounded-2xl border border-border"
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h2 className="text-3xl font-bold text-text mb-6">Send us a message</h2>
             <form className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="first-name" className="block text-sm font-medium text-neutral-700">First Name</label>
-                  <input type="text" id="first-name" className="mt-1 block w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-DEFAULT focus:border-primary-DEFAULT" />
+                  <label htmlFor="first-name" className="block text-sm font-medium text-textSecondary mb-1">First Name</label>
+                  <input type="text" id="first-name" className="bg-background border border-border text-text rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200" />
                 </div>
                 <div>
-                  <label htmlFor="last-name" className="block text-sm font-medium text-neutral-700">Last Name</label>
-                  <input type="text" id="last-name" className="mt-1 block w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-DEFAULT focus:border-primary-DEFAULT" />
+                  <label htmlFor="last-name" className="block text-sm font-medium text-textSecondary mb-1">Last Name</label>
+                  <input type="text" id="last-name" className="bg-background border border-border text-text rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200" />
                 </div>
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-neutral-700">Email</label>
-                <input type="email" id="email" className="mt-1 block w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-DEFAULT focus:border-primary-DEFAULT" />
+                <label htmlFor="email" className="block text-sm font-medium text-textSecondary mb-1">Email</label>
+                <input type="email" id="email" className="bg-background border border-border text-text rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200" />
               </div>
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-neutral-700">Message</label>
-                <textarea id="message" rows={4} className="mt-1 block w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-DEFAULT focus:border-primary-DEFAULT"></textarea>
+                <label htmlFor="message" className="block text-sm font-medium text-textSecondary mb-1">Message</label>
+                <textarea id="message" rows={4} className="bg-background border border-border text-text rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200"></textarea>
               </div>
               <div>
-                <button type="submit" className="w-full bg-primary-DEFAULT text-white font-semibold py-3 px-4 rounded-lg hover:bg-primary-hover transition-colors">
+                <button type="submit" className="w-full flex items-center justify-center gap-2 bg-primary text-white font-semibold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity shadow-glow-primary">
+                  <Send className="w-5 h-5" />
                   Send Message
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
+      </section>
 
-        {/* Q&A Section */}
-        <div className="mt-24">
+      {/* Q&A Section */}
+      <section className="bg-surface py-24 sm:py-32">
+        <motion.div 
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.7 }}
+        >
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-neutral-900">Frequently Asked Questions</h2>
-            <p className="mt-3 text-neutral-600 max-w-xl mx-auto">Find quick answers to common questions about our services and products.</p>
+            <h2 className="text-4xl font-bold text-text">Frequently Asked Questions</h2>
+            <p className="mt-4 text-textSecondary max-w-xl mx-auto">Find quick answers to common questions about our services and products.</p>
           </div>
           <div className="max-w-3xl mx-auto space-y-4">
             {faqs.map((faq, index) => (
-              <details key={index} className="group p-4 border border-neutral-200 rounded-lg">
-                <summary className="flex justify-between items-center cursor-pointer font-medium text-neutral-800 group-hover:text-primary-DEFAULT">
+              <details key={index} className="group bg-background p-5 border border-border rounded-xl">
+                <summary className="flex justify-between items-center cursor-pointer font-medium text-text group-hover:text-primary transition-colors">
                   {faq.question}
-                  <ChevronDown className="w-5 h-5 transition-transform duration-300 group-open:rotate-180" />
+                  <ChevronDown className="w-5 h-5 transition-transform duration-300 group-open:rotate-180 text-primary" />
                 </summary>
-                <p className="mt-3 text-neutral-600 text-sm leading-6">
+                <p className="mt-4 text-textSecondary text-sm leading-6">
                   {faq.answer}
                 </p>
               </details>
             ))}
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </section>
     </div>
   );
 }

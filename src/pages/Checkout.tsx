@@ -65,7 +65,7 @@ export function Checkout({ onSuccess }: CheckoutProps) {
                   placeholder="Full Name"
                   value={address.fullName}
                   onChange={(e) => setAddress({ ...address, fullName: e.target.value })}
-                  className="px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 body"
                   required
                 />
                 <input

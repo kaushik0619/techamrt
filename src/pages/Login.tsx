@@ -103,7 +103,7 @@ export function Login({ onSuccess }: LoginProps) {
               <button
                 type="submit"
                 disabled={loading === 'login'}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary-DEFAULT text-white rounded-lg font-bold hover:bg-primary-hover transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary-DEFAULT text-white rounded-lg font-bold hover:bg-primary-hover transition-colors disabled:opacity-70 disabled:cursor-not-allowed body"
               >
                 {loading === 'login' ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
                 <span>Login</span>

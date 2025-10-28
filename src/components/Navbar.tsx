@@ -25,6 +25,7 @@ const navItems = [
   },
   { name: 'Toys & Games', page: 'shop', category: 'toys_games' },
   { name: 'Car Accessories', page: 'shop', category: 'car_accessories' },
+  { name: 'Repair', page: 'repair' },
   { name: 'Contact Us', page: 'contact' },
 ];
 
@@ -45,7 +46,7 @@ const DropdownMenu = ({ subItems, onItemClick }: DropdownMenuProps) => (
       <button
         key={item}
         onClick={() => onItemClick(item)}
-        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-primary-DEFAULT"
+        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-primary-DEFAULT transition-colors"
       >
         {item}
       </button>
@@ -58,7 +59,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
   const { itemCount } = useCart();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -72,13 +73,13 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
   }, []);
 
   const handleNavItemClick = (page: string, category?: string) => {
+    setHoveredItem(null); // Close any open dropdown
     onNavigate(page, category);
-    setOpenDropdown(null);
   };
 
   const handleSubItemClick = (page: string, category: string, subItem: string) => {
+    setHoveredItem(null); // Close dropdown
     onNavigate(page, category, subItem);
-    setOpenDropdown(null);
   };
 
   const handleMobileNavClick = (page: string, category?: string) => {
@@ -91,14 +92,16 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
     setIsMobileMenuOpen(false);
   };
 
-  const navLinkClasses = (page: string) =>
-    `relative text-sm font-medium transition-colors ${
-      currentPage === page
+  const navLinkClasses = (page: string, isShopItem: boolean) => {
+    const isActive = isShopItem ? false : currentPage === page;
+    return `relative text-sm font-medium transition-colors ${
+      isActive
         ? 'text-white'
         : 'text-neutral-400 hover:text-white'
     } after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-full after:h-[2px] after:bg-primary-DEFAULT after:transition-transform after:duration-300 ${
-      currentPage === page ? 'after:scale-x-100' : 'after:scale-x-0'
+      isActive ? 'after:scale-x-100' : 'after:scale-x-0'
     } hover:after:scale-x-100`;
+  };
 
   return (
     <header className="bg-neutral-900 text-white sticky top-0 z-50 border-b border-neutral-800">
@@ -106,7 +109,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
         <div className="flex justify-between items-center h-20">
           {/* Left Section */}
           <div className="flex items-center gap-8">
-            <button onClick={() => onNavigate('landing')} className="text-xl font-bold">
+            <button onClick={() => handleNavItemClick('landing')} className="text-xl font-bold">
               <img 
                 src="/logo-light.png"
                 alt="ABC Accessories But Cheaper"
@@ -114,30 +117,35 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
               />
             </button>
             <nav className="hidden md:flex items-center gap-6">
-              {navItems.map((item) => (
-                <div
-                  key={item.name}
-                  className="relative"
-                  onMouseEnter={() => item.subItems && setOpenDropdown(item.name)}
-                  onMouseLeave={() => item.subItems && setOpenDropdown(null)}
-                >
-                  <button 
-                    onClick={() => handleNavItemClick(item.page, item.category)} 
-                    className={`${navLinkClasses(item.page)} flex items-center gap-1`}
+              {navItems.map((item) => {
+                const hasDropdown = !!item.subItems;
+                const isShopItem = item.page === 'shop';
+                
+                return (
+                  <div
+                    key={item.name}
+                    className="relative"
+                    onMouseEnter={() => hasDropdown && setHoveredItem(item.name)}
+                    onMouseLeave={() => hasDropdown && setHoveredItem(null)}
                   >
-                    {item.name}
-                    {item.subItems && <ChevronDown className="w-4 h-4" />}
-                  </button>
-                  <AnimatePresence>
-                    {item.subItems && openDropdown === item.name && (
-                      <DropdownMenu 
-                        subItems={item.subItems} 
-                        onItemClick={(subItem) => handleSubItemClick(item.page, item.category!, subItem)}
-                      />
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
+                    <button 
+                      onClick={() => handleNavItemClick(item.page, item.category)} 
+                      className={`${navLinkClasses(item.page, isShopItem)} flex items-center gap-1`}
+                    >
+                      {item.name}
+                      {hasDropdown && <ChevronDown className="w-4 h-4" />}
+                    </button>
+                    <AnimatePresence>
+                      {hasDropdown && hoveredItem === item.name && (
+                        <DropdownMenu 
+                          subItems={item.subItems!} 
+                          onItemClick={(subItem) => handleSubItemClick(item.page, item.category!, subItem)}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </nav>
           </div>
 
@@ -146,10 +154,10 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
             <button className="p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors">
               <Search className="w-5 h-5" />
             </button>
-            <button onClick={() => onNavigate('wishlist')} className="p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors">
+            <button onClick={() => handleNavItemClick('wishlist')} className="p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors">
               <Heart className="w-5 h-5" />
             </button>
-            <button onClick={() => onNavigate('cart')} className="relative p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors">
+            <button onClick={() => handleNavItemClick('cart')} className="relative p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors">
               <ShoppingBag className="w-5 h-5" />
               {itemCount > 0 && (
                 <span className="absolute top-0 right-0 bg-primary-DEFAULT text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -180,19 +188,19 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                         <p className="text-sm font-medium">{user.username}</p>
                         <p className="text-xs text-neutral-500">{user.email}</p>
                       </div>
-                     <button
-  onClick={() => {
-    onNavigate('admin');  // ✅ Correct
-    setIsUserMenuOpen(false);
-  }}
-  className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 flex items-center gap-2"
->
+                      <button
+                        onClick={() => {
+                          handleNavItemClick('admin');
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 flex items-center gap-2"
+                      >
                         <LayoutDashboard className="w-4 h-4" />
                         Dashboard
                       </button>
                       <button
                         onClick={() => {
-                          onNavigate('orders');
+                          handleNavItemClick('orders');
                           setIsUserMenuOpen(false);
                         }}
                         className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 flex items-center gap-2"
@@ -215,7 +223,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                 </AnimatePresence>
               </div>
             ) : (
-              <button onClick={() => onNavigate('login')} className="hidden md:block text-sm font-medium text-neutral-400 hover:text-white">
+              <button onClick={() => handleNavItemClick('login')} className="hidden md:block text-sm font-medium text-neutral-400 hover:text-white">
                 Login
               </button>
             )}
@@ -251,7 +259,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                 <Fragment key={item.name}>
                   <button 
                     onClick={() => handleMobileNavClick(item.page, item.category)} 
-                    className="text-left text-lg font-medium text-neutral-300 hover:text-primary-DEFAULT"
+                    className="text-left text-lg font-medium text-neutral-300 hover:text-primary-DEFAULT transition-colors"
                   >
                     {item.name}
                   </button>
@@ -261,7 +269,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                         <button 
                           key={sub} 
                           onClick={() => handleMobileSubItemClick(item.page, item.category!, sub)}
-                          className="text-left text-neutral-400 hover:text-primary-DEFAULT"
+                          className="text-left text-neutral-400 hover:text-primary-DEFAULT transition-colors"
                         >
                           {sub}
                         </button>

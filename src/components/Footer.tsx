@@ -61,7 +61,7 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-neutral-800 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-neutral-500 text-sm">&copy; {new Date().getFullYear()} ABC. All Rights Reserved.</p>
           <div className="flex space-x-4 mt-4 sm:mt-0">
-            <a href="#" className="text-neutral-400 hover:text-white transition-colors"><Instagram className="w-5 h-5" /></a>
+            <a href="https://www.instagram.com/accessoriesbutcheaper?igsh=aXk2dzVkanpkOTd4" className="text-neutral-400 hover:text-white transition-colors"><Instagram className="w-5 h-5" /></a>
             <a href="#" className="text-neutral-400 hover:text-white transition-colors"><WhatsAppIcon /></a>
           </div>
         </div>

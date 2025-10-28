@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Product {
@@ -70,6 +70,18 @@ const mockFeaturedProducts: Product[] = [
     price: 150.00,
     images: ['https://images.pexels.com/photos/3062946/pexels-photo-3062946.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'],
   },
+  {
+    id: '5',
+    name: 'Ergonomic Mechanical Keyboard',
+    price: 125.00,
+    images: ['https://images.pexels.com/photos/1772123/pexels-photo-1772123.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'],
+  },
+  {
+    id: '6',
+    name: 'HD Webcam with Ring Light',
+    price: 75.00,
+    images: ['https://images.pexels.com/photos/7238759/pexels-photo-7238759.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'],
+  },
 ];
 
 const variants = {
@@ -107,7 +119,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
   }, [page]);
 
   return (
-    <div>
+    <div className="bg-background">
       {/* Hero Section */}
       <section className="relative h-[70vh] w-full overflow-hidden bg-neutral-900">
         <AnimatePresence initial={false} custom={direction}>
@@ -158,7 +170,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
             onClick={() => onNavigate(slides[slideIndex].buttonLink)}
-            className="bg-primary-DEFAULT text-white font-semibold px-8 py-3 rounded-lg hover:bg-primary-hover transition-transform transform hover:scale-105"
+            className="bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition-transform transform hover:scale-105"
           >
             {slides[slideIndex].buttonText}
           </motion.button>
@@ -190,12 +202,12 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
       </section>
 
       {/* Shop by Category Section */}
-      <section className="py-16 bg-neutral-50">
+      <section className="py-16 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-neutral-900 mb-10">Shop by Category</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <h2 className="text-3xl font-bold text-center text-text mb-10">Shop by Category</h2>
+          <div className="flex overflow-x-auto gap-6 pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:gap-8 scrollbar-hide">
             {categories.map((category) => (
-              <div key={category.name} className="relative rounded-xl overflow-hidden group cursor-pointer shadow-sm" onClick={() => onNavigate('shop')}>
+              <div key={category.name} className="relative rounded-xl overflow-hidden group cursor-pointer shadow-sm w-64 sm:w-72 flex-shrink-0 lg:w-auto" onClick={() => onNavigate('shop')}>
                 <img src={category.image} alt={category.name} className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                   <h3 className="text-white text-xl font-bold">{category.name}</h3>
@@ -206,18 +218,48 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
         </div>
       </section>
 
-      {/* Featured Products Section */}
-      <section className="py-16 bg-white">
+      {/* Repair Section */}
+      <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-neutral-900 mb-10">Featured Products</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="bg-surface rounded-2xl p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 border border-border">
+            <div className="md:w-1/2 text-center md:text-left">
+              <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">
+                Device Not Working?
+              </h2>
+              <p className="text-textSecondary mb-6">
+                Don't worry! Our expert technicians can fix it. From cracked screens to battery issues, we've got you covered.
+              </p>
+              <button
+                onClick={() => onNavigate('repair')}
+                className="bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition-transform transform hover:scale-105 flex items-center gap-2 mx-auto md:mx-0"
+              >
+                <Wrench className="w-5 h-5" />
+                Book a Repair
+              </button>
+            </div>
+            <div className="md:w-1/2">
+              <img 
+                src="https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                alt="Repair service" 
+                className="rounded-xl object-cover w-full h-full"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products Section */}
+      <section className="py-16 bg-surface">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-text mb-10">Featured Products</h2>
+          <div className="flex overflow-x-auto gap-6 pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:gap-8 scrollbar-hide">
             {featuredProducts.map((product) => (
               <div
                 key={product.id}
                 onClick={() => onSelectProduct(product.id)}
-                className="bg-white border border-neutral-200 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                className="bg-background border border-border rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-64 sm:w-72 flex-shrink-0 lg:w-auto"
               >
-                <div className="relative h-56 bg-neutral-100">
+                <div className="relative h-56 bg-surface">
                   <img
                     src={product.images[0]}
                     alt={product.name}
@@ -225,8 +267,8 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
                   />
                 </div>
                 <div className="p-4 text-center">
-                  <h3 className="text-base font-semibold text-neutral-800 truncate">{product.name}</h3>
-                  <p className="text-lg font-bold text-primary-DEFAULT mt-2">${product.price.toFixed(2)}</p>
+                  <h3 className="text-base font-semibold text-text truncate">{product.name}</h3>
+                  <p className="text-lg font-bold text-primary mt-2">₹{product.price.toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -234,7 +276,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
           <div className="text-center mt-12">
             <button
               onClick={() => onNavigate('shop')}
-              className="text-primary-DEFAULT font-semibold hover:underline flex items-center gap-2 justify-center mx-auto"
+              className="text-primary font-semibold hover:underline flex items-center gap-2 justify-center mx-auto"
             >
               View All Products <ArrowRight className="w-4 h-4" />
             </button>

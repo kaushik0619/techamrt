@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '../db';
 import { Order } from '../models/Order';
 import { Product } from '../models/Product';
@@ -79,7 +80,6 @@ router.get('/recent-orders', authenticateToken, requireAdmin, async (req: Authen
     
     const db = await connectToDatabase();
     const ordersCollection = db.collection<Order>('orders');
-    const usersCollection = db.collection<User>('users');
 
     const recentOrders = await ordersCollection
       .aggregate([
@@ -166,6 +166,31 @@ router.get('/products', authenticateToken, requireAdmin, async (req: Authenticat
   }
 });
 
+// DELETE /api/admin/products/:id - Delete a product
+router.delete('/products/:id', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid product ID format' });
+    }
+
+    const db = await connectToDatabase();
+    const productsCollection = db.collection<Product>('products');
+
+    const result = await productsCollection.deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ message: 'Server error while deleting product' });
+  }
+});
+
+
 // GET /api/admin/orders - Get all orders for admin management
 router.get('/orders', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -173,7 +198,6 @@ router.get('/orders', authenticateToken, requireAdmin, async (req: Authenticated
     
     const db = await connectToDatabase();
     const ordersCollection = db.collection<Order>('orders');
-    const usersCollection = db.collection<User>('users');
     
     const filter: any = {};
     

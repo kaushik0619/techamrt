@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Package, DollarSign, Users, ShoppingCart } from 'lucide-react';
+import { TrendingUp, Package, DollarSign, Users, ShoppingCart, Plus, Trash2 } from 'lucide-react';
 import { api } from '../lib/api';
+import { ProductForm } from '../components/ProductForm';
 
 interface Stats {
   totalOrders: number;
@@ -28,12 +29,23 @@ interface RecentOrder {
   };
 }
 
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  category: string;
+  stock: number;
+  images: string[];
+}
+
 export function AdminDashboard() {
   const [stats, setStats] = useState<Stats>({ totalOrders: 0, totalRevenue: 0, totalCustomers: 0, totalProducts: 0 });
   const [salesByRegion, setSalesByRegion] = useState<SalesData[]>([]);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showProductForm, setShowProductForm] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -44,15 +56,17 @@ export function AdminDashboard() {
       setLoading(true);
       setError(null);
       
-      const [statsData, salesData, ordersData] = await Promise.all([
+      const [statsData, salesData, ordersData, productsData] = await Promise.all([
         api.get('/admin/stats'),
         api.get('/admin/sales-by-region'),
-        api.get('/admin/recent-orders')
+        api.get('/admin/recent-orders'),
+        api.get('/admin/products?limit=100')
       ]);
       
       setStats(statsData);
       setSalesByRegion(salesData);
       setRecentOrders(ordersData);
+      setProducts(productsData.products);
     } catch (err: any) {
       setError(err.message || 'Failed to load dashboard data');
       console.error('Error loading dashboard data:', err);
@@ -61,10 +75,26 @@ export function AdminDashboard() {
     }
   }
 
+  function handleProductCreated() {
+    loadDashboardData(); // Refresh all data to update product count and list
+  }
+
+  async function handleDeleteProduct(productId: string) {
+    if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+      try {
+        await api.delete(`/admin/products/${productId}`);
+        loadDashboardData(); // Refresh data after deletion
+      } catch (err: any) {
+        setError(err.message || 'Failed to delete product');
+        console.error('Error deleting product:', err);
+      }
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-DEFAULT"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -89,7 +119,16 @@ export function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-slate-900 mb-8">Admin Dashboard</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-slate-900">Admin Dashboard</h1>
+          <button
+            onClick={() => setShowProductForm(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+          >
+            <Plus className="w-5 h-5" />
+            Add New Product
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-6 text-white">
@@ -137,7 +176,7 @@ export function AdminDashboard() {
             {salesByRegion.length > 0 ? (
               <div className="space-y-4">
                 {salesByRegion.map((region) => {
-                  const maxAmount = salesByRegion[0].amount;
+                  const maxAmount = Math.max(...salesByRegion.map(r => r.amount), 1);
                   const percentage = (region.amount / maxAmount) * 100;
 
                   return (
@@ -221,7 +260,62 @@ export function AdminDashboard() {
             )}
           </div>
         </div>
+
+        {/* Product Management Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-slate-900 mb-6">Product Management</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-slate-200">
+                  <th className="p-4 text-sm font-semibold text-slate-600">Product</th>
+                  <th className="p-4 text-sm font-semibold text-slate-600 hidden md:table-cell">Category</th>
+                  <th className="p-4 text-sm font-semibold text-slate-600 hidden sm:table-cell">Price</th>
+                  <th className="p-4 text-sm font-semibold text-slate-600 hidden sm:table-cell">Stock</th>
+                  <th className="p-4 text-sm font-semibold text-slate-600">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product._id} className="border-b border-slate-100 hover:bg-slate-50">
+                    <td className="p-4 flex items-center gap-4">
+                      <img 
+                        src={product.images[0] || 'https://p_150.png'} 
+                        alt={product.name}
+                        className="w-10 h-10 rounded-md object-cover"
+                      />
+                      <span className="font-medium text-slate-800">{product.name}</span>
+                    </td>
+                    <td className="p-4 text-slate-600 hidden md:table-cell">{product.category}</td>
+                    <td className="p-4 text-slate-600 hidden sm:table-cell">₹{product.price.toLocaleString()}</td>
+                    <td className="p-4 text-slate-600 hidden sm:table-cell">{product.stock}</td>
+                    <td className="p-4">
+                      <button 
+                        onClick={() => handleDeleteProduct(product._id)}
+                        className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
+                        aria-label="Delete product"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {products.length === 0 && (
+              <p className="text-center py-8 text-slate-500">No products found.</p>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Product Form Modal */}
+      {showProductForm && (
+        <ProductForm
+          onClose={() => setShowProductForm(false)}
+          onSuccess={handleProductCreated}
+        />
+      )}
     </div>
   );
 }
