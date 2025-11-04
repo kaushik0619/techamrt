@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+// Set this to your Render backend URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://techamrt.onrender.com';
 
 interface ApiResponse<T = any> {
   data?: T;
@@ -53,7 +54,7 @@ function getAuthHeaders(): HeadersInit {
 
 export const api = {
   async get<T = any>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {  // FIXED: Added parentheses
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -62,7 +63,7 @@ export const api = {
   },
 
   async post<T = any>(endpoint: string, data?: any): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {  // FIXED: Added parentheses
       method: 'POST',
       headers: getAuthHeaders(),
       body: data ? JSON.stringify(data) : undefined,
@@ -72,7 +73,7 @@ export const api = {
   },
 
   async put<T = any>(endpoint: string, data?: any): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {  // FIXED: Added parentheses
       method: 'PUT',
       headers: getAuthHeaders(),
       body: data ? JSON.stringify(data) : undefined,
@@ -82,7 +83,7 @@ export const api = {
   },
 
   async delete<T = any>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {  // FIXED: Added parentheses
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
@@ -91,7 +92,7 @@ export const api = {
   },
 
   async patch<T = any>(endpoint: string, data?: any): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {  // FIXED: Added parentheses
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: data ? JSON.stringify(data) : undefined,

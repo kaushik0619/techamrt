@@ -15,8 +15,15 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
-  credentials: true
+  origin: [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://accessoriesbutcheaper.onrender.com',  // ← Add your production frontend URL
+    process.env.FRONTEND_URL || ''  // ← Also allow from env variable
+  ].filter(Boolean),  // Remove empty strings
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -52,6 +59,7 @@ connectToDatabase()
     app.listen(PORT, () => {
       console.log(`✅ Server is running on http://localhost:${PORT}`);
       console.log(`✅ API available at http://localhost:${PORT}/api`);
+      console.log(`✅ CORS enabled for: http://localhost:5173, https://accessoriesbutcheaper.onrender.com`);
     });
   })
   .catch((error) => {
