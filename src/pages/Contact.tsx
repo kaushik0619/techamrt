@@ -25,15 +25,15 @@ const contactInfo = [
     icon: Mail,
     title: 'Email',
     description: 'Our support team will get back to you within 24 hours.',
-    contact: 'support@abc.com',
-    href: 'mailto:support@abc.com',
+    contact: 'accessoriesbutcheapermails@gmail.com',
+    href: 'mailto:accessoriesbutcheapermails@abc.com',
   },
   {
     icon: Phone,
     title: 'Phone',
     description: 'Mon-Fri from 8am to 5pm PST.',
-    contact: '+1 (234) 567-890',
-    href: 'tel:+1234567890',
+    contact: '9311216285',
+    href: 'tel:9311216285',
   },
   {
     icon: MapPin,
@@ -68,9 +68,9 @@ const itemVariants = {
 
 export function Contact() {
   return (
-    <div className="bg-background text-text">
+    <div className="bg-white text-gray-900">
       {/* Header */}
-      <section className="relative bg-surface pt-32 pb-20 text-center overflow-hidden">
+      <section className="relative bg-gray-50 pt-32 pb-20 text-center overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <motion.div 
           className="relative z-10"
@@ -81,7 +81,7 @@ export function Contact() {
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight animate-gradient-text bg-gradient-to-r from-primary via-secondary to-accent">
             Get in Touch
           </h1>
-          <p className="mt-6 text-lg text-textSecondary max-w-2xl mx-auto">
+          <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">
             We're here to help! Whether you have a question about our products, an order, or anything else, our team is ready to answer all your questions.
           </p>
         </motion.div>
@@ -98,22 +98,22 @@ export function Contact() {
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
           >
-            <h2 className="text-3xl font-bold text-text">Contact Information</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Contact Information</h2>
             {contactInfo.map((item, index) => (
               <motion.div key={index} className="flex items-start gap-5" variants={itemVariants}>
-                <div className="bg-surface text-primary p-4 rounded-xl border border-border">
+                <div className="bg-white text-primary p-4 rounded-xl border border-gray-200">
                   <item.icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-text">{item.title}</h3>
-                  <p className="text-textSecondary">{item.description}</p>
+                  <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                  <p className="text-gray-600">{item.description}</p>
                   <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline transition-colors">
                     {item.contact}
                   </a>
                 </div>
               </motion.div>
             ))}
-             <motion.div className="rounded-xl overflow-hidden border border-border" variants={itemVariants}>
+             <motion.div className="rounded-xl overflow-hidden border border-gray-200" variants={itemVariants}>
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3172.332533228932!2d-122.084249684695!3d37.42247697982523!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fba024251f7b9%3A0x1673550550141a85!2sGoogleplex!5e0!3m2!1sen!2sus!4v1678886322345!5m2!1sen!2sus"
                 width="100%"
@@ -128,31 +128,31 @@ export function Contact() {
 
           {/* Contact Form */}
           <motion.div 
-            className="bg-surface p-8 rounded-2xl border border-border"
+            className="bg-gray-50 p-8 rounded-2xl border border-gray-200"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h2 className="text-3xl font-bold text-text mb-6">Send us a message</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a message</h2>
             <form className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="first-name" className="block text-sm font-medium text-textSecondary mb-1">First Name</label>
-                  <input type="text" id="first-name" className="bg-background border border-border text-text rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200" />
+                  <label htmlFor="first-name" className="block text-sm font-medium text-gray-600 mb-1">First Name</label>
+                  <input type="text" id="first-name" className="bg-white border border-gray-200 text-gray-900 rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200" />
                 </div>
                 <div>
-                  <label htmlFor="last-name" className="block text-sm font-medium text-textSecondary mb-1">Last Name</label>
-                  <input type="text" id="last-name" className="bg-background border border-border text-text rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200" />
+                  <label htmlFor="last-name" className="block text-sm font-medium text-gray-600 mb-1">Last Name</label>
+                  <input type="text" id="last-name" className="bg-white border border-gray-200 text-gray-900 rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200" />
                 </div>
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-textSecondary mb-1">Email</label>
-                <input type="email" id="email" className="bg-background border border-border text-text rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200" />
+                <label htmlFor="email" className="block text-sm font-medium text-gray-600 mb-1">Email</label>
+                <input type="email" id="email" className="bg-white border border-gray-200 text-gray-900 rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200" />
               </div>
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-textSecondary mb-1">Message</label>
-                <textarea id="message" rows={4} className="bg-background border border-border text-text rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200"></textarea>
+                <label htmlFor="message" className="block text-sm font-medium text-gray-600 mb-1">Message</label>
+                <textarea id="message" rows={4} className="bg-white border border-gray-200 text-gray-900 rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200"></textarea>
               </div>
               <div>
                 <button type="submit" className="w-full flex items-center justify-center gap-2 bg-primary text-white font-semibold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity shadow-glow-primary">
@@ -166,7 +166,7 @@ export function Contact() {
       </section>
 
       {/* Q&A Section */}
-      <section className="bg-surface py-24 sm:py-32">
+      <section className="bg-gray-50 py-24 sm:py-32">
         <motion.div 
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
           initial={{ opacity: 0 }}
@@ -175,17 +175,17 @@ export function Contact() {
           transition={{ duration: 0.7 }}
         >
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-text">Frequently Asked Questions</h2>
-            <p className="mt-4 text-textSecondary max-w-xl mx-auto">Find quick answers to common questions about our services and products.</p>
+            <h2 className="text-4xl font-bold text-gray-900">Frequently Asked Questions</h2>
+            <p className="mt-4 text-gray-600 max-w-xl mx-auto">Find quick answers to common questions about our services and products.</p>
           </div>
           <div className="max-w-3xl mx-auto space-y-4">
             {faqs.map((faq, index) => (
-              <details key={index} className="group bg-background p-5 border border-border rounded-xl">
-                <summary className="flex justify-between items-center cursor-pointer font-medium text-text group-hover:text-primary transition-colors">
+              <details key={index} className="group bg-white p-5 border border-gray-200 rounded-xl">
+                <summary className="flex justify-between items-center cursor-pointer font-medium text-gray-900 group-hover:text-primary transition-colors">
                   {faq.question}
                   <ChevronDown className="w-5 h-5 transition-transform duration-300 group-open:rotate-180 text-primary" />
                 </summary>
-                <p className="mt-4 text-textSecondary text-sm leading-6">
+                <p className="mt-4 text-gray-600 text-sm leading-6">
                   {faq.answer}
                 </p>
               </details>

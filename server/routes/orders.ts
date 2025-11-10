@@ -6,7 +6,9 @@ import { OrderItem, OrderItemInsert } from '../models/OrderItem';
 import { CartItem } from '../models/CartItem';
 import { Product } from '../models/Product';
 import { SalesEvent, SalesEventInsert } from '../models/SalesEvent';
+import { User } from '../models/User';
 import { authenticateToken, requireAdmin, AuthenticatedRequest } from '../middleware/auth';
+import { sendOrderConfirmationEmails } from '../services/emailService';
 
 const router = Router();
 
@@ -275,6 +277,62 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
         } 
       }
     );
+
+    // Get user details for email
+    const usersCollection = db.collection<User>('users');
+    const user = await usersCollection.findOne({ _id: req.user._id });
+
+    // Get order items with product details (including description) for email
+    const orderItemsWithProducts = await orderItemsCollection
+      .aggregate([
+        { $match: { order_id: orderResult.insertedId } },
+        {
+          $lookup: {
+            from: 'products',
+            localField: 'product_id',
+            foreignField: '_id',
+            as: 'product'
+          }
+        },
+        { $unwind: '$product' }
+      ])
+      .toArray();
+
+    // Prepare email data
+    const emailItems = orderItemsWithProducts.map((item: any) => ({
+      name: item.product.name,
+      quantity: item.quantity,
+      price: item.price,
+      description: item.product.description || 'No description available'
+    }));
+
+    // Send order confirmation emails
+    try {
+      await sendOrderConfirmationEmails({
+        orderId: orderResult.insertedId.toString(),
+        customerName: shippingAddress.fullName || user?.username || 'Customer',
+        customerEmail: user?.email || '',
+        customerPhone: shippingAddress.phone || '',
+        orderDate: new Date(),
+        items: emailItems,
+        totalAmount: totalAmount,
+        paymentMethod: paymentMethod || 'cod',
+        paymentStatus: 'completed',
+        shippingAddress: {
+          fullName: shippingAddress.fullName || shippingAddress.full_name || '',
+          addressLine1: shippingAddress.addressLine1 || shippingAddress.address_line1 || '',
+          addressLine2: shippingAddress.addressLine2 || shippingAddress.address_line2,
+          city: shippingAddress.city || '',
+          state: shippingAddress.state || '',
+          postalCode: shippingAddress.postalCode || shippingAddress.postal_code || '',
+          phone: shippingAddress.phone || ''
+        }
+      });
+      console.log(`✅ Order confirmation emails sent for order ${orderResult.insertedId}`);
+    } catch (emailError) {
+      console.error('❌ Error sending order confirmation emails:', emailError);
+      // Don't fail the order creation if email fails
+    }
 
     res.status(201).json({ 
       message: 'Order created successfully',

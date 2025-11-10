@@ -10,6 +10,7 @@ interface OrderEmailData {
     name: string;
     quantity: number;
     price: number;
+    description?: string;
   }>;
   totalAmount: number;
   paymentMethod: string;
@@ -42,7 +43,10 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
     .map(
       (item) => `
         <tr>
-          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${item.name}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+            <strong>${item.name}</strong>
+            ${item.description ? `<br/><span style="color: #6b7280; font-size: 12px;">${item.description.substring(0, 100)}${item.description.length > 100 ? '...' : ''}</span>` : ''}
+          </td>
           <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantity}</td>
           <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">₹${item.price.toFixed(2)}</td>
           <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">₹${(item.price * item.quantity).toFixed(2)}</td>
@@ -219,21 +223,38 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
 // Send order confirmation emails
 export async function sendOrderConfirmationEmails(data: OrderEmailData): Promise<void> {
   try {
-    // Send email to admin
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: process.env.ADMIN_EMAIL,
-      subject: `🛍️ New Order #${data.orderId} - ₹${data.totalAmount.toFixed(2)}`,
-      html: generateAdminEmailHTML(data),
-    });
+    // Check if email configuration is available
+    if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.warn('⚠️ Email configuration missing. Skipping email sending.');
+      console.warn('Required environment variables: EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, EMAIL_FROM, ADMIN_EMAIL');
+      return;
+    }
+
+    if (!process.env.ADMIN_EMAIL) {
+      console.warn('⚠️ ADMIN_EMAIL not configured. Skipping admin email.');
+    } else {
+      // Send email to admin
+      await transporter.sendMail({
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        to: process.env.ADMIN_EMAIL,
+        subject: `🛍️ New Order #${data.orderId} - ₹${data.totalAmount.toFixed(2)}`,
+        html: generateAdminEmailHTML(data),
+      });
+      console.log(`✅ Admin email sent for order ${data.orderId}`);
+    }
 
     // Send email to customer
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: data.customerEmail,
-      subject: `Order Confirmation #${data.orderId}`,
-      html: generateCustomerEmailHTML(data),
-    });
+    if (data.customerEmail) {
+      await transporter.sendMail({
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        to: data.customerEmail,
+        subject: `Order Confirmation #${data.orderId}`,
+        html: generateCustomerEmailHTML(data),
+      });
+      console.log(`✅ Customer email sent for order ${data.orderId}`);
+    } else {
+      console.warn(`⚠️ Customer email not available for order ${data.orderId}`);
+    }
 
     console.log(`✅ Order confirmation emails sent for order ${data.orderId}`);
   } catch (error) {

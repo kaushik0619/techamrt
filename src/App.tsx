@@ -98,12 +98,12 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen bg-background flex flex-col">
+        <div className="min-h-screen bg-white flex flex-col">
           {currentPage !== 'login' && (
             <Navbar onNavigate={handleNavigate} currentPage={currentPage} />
           )}
           <main className="flex-grow">{renderPage()}</main>
-          {currentPage !== 'login' && <Footer />}
+          {currentPage !== 'login' && <Footer onNavigate={handleNavigate} />}
         </div>
       </CartProvider>
     </AuthProvider>

@@ -86,7 +86,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
@@ -94,8 +94,8 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
 
   if (error || !product) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-text">
-        <p className="text-xl text-textSecondary mb-4">{error || 'Product not found'}</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white text-gray-900">
+        <p className="text-xl text-gray-600 mb-4">{error || 'Product not found'}</p>
         <button onClick={onBack} className="text-primary hover:underline transition-colors">
           Go back to shop
         </button>
@@ -105,7 +105,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
 
   return (
     <motion.div 
-      className="min-h-screen bg-background text-text"
+      className="min-h-screen bg-white text-gray-900"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -114,7 +114,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.button
           onClick={onBack}
-          className="flex items-center gap-2 text-textSecondary hover:text-primary transition-colors mb-8 group"
+          className="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors mb-8 group"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
@@ -126,7 +126,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
         <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
           <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="visible">
             <motion.div 
-              className="bg-surface rounded-2xl shadow-2xl shadow-black/20 overflow-hidden aspect-square border border-border"
+              className="bg-gray-50 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden aspect-square border border-gray-200"
               variants={itemVariants}
             >
               <AnimatePresence mode="wait">
@@ -148,7 +148,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
                   key={i}
                   onClick={() => setSelectedImage(i)}
                   className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 ${
-                    selectedImage === i ? 'border-primary scale-105' : 'border-border hover:border-primary/50'
+                    selectedImage === i ? 'border-primary scale-105' : 'border-gray-200 hover:border-primary/50'
                   }`}
                 >
                   <img src={img} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
@@ -162,7 +162,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
               <div className="text-sm font-medium text-primary uppercase tracking-wider mb-2">
                 {product.category.replace('_', ' ')}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-text mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 {product.name}
               </h1>
 
@@ -172,14 +172,14 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
                     <Star key={i} className="w-5 h-5 fill-current" />
                   ))}
                 </div>
-                <span className="text-textSecondary">(4.8 / 127 reviews)</span>
+                <span className="text-gray-600">(4.8 / 127 reviews)</span>
               </div>
 
-              <div className="text-5xl font-extrabold text-text mb-6">
+              <div className="text-5xl font-extrabold text-gray-900 mb-6">
                 ₹{product.price.toLocaleString()}
               </div>
 
-              <p className="text-lg text-textSecondary leading-relaxed mb-8">
+              <p className="text-lg text-gray-600 leading-relaxed mb-8">
                 {product.description}
               </p>
             </motion.div>
@@ -187,11 +187,11 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
             {product.stock > 0 ? (
               <motion.div className="space-y-4" variants={itemVariants}>
                 <div className="flex items-center gap-4">
-                  <label className="text-text font-medium">Quantity:</label>
-                  <div className="flex items-center border border-border rounded-lg overflow-hidden bg-surface">
+                  <label className="text-gray-900 font-medium">Quantity:</label>
+                  <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3 py-2 hover:bg-neutral-700 transition-colors"
+                      className="px-3 py-2 hover:bg-gray-200 transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
@@ -203,12 +203,12 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
                     />
                     <button
                       onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                      className="px-3 py-2 hover:bg-neutral-700 transition-colors"
+                      className="px-3 py-2 hover:bg-gray-200 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
-                  <span className="text-textSecondary text-sm">
+                  <span className="text-gray-600 text-sm">
                     ({product.stock} available)
                   </span>
                 </div>
@@ -228,30 +228,30 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
             )}
 
             <motion.div className="grid grid-cols-3 gap-4 pt-4" variants={itemVariants}>
-              <div className="bg-surface border border-border rounded-xl p-4 text-center">
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
                 <Truck className="w-8 h-8 mx-auto mb-2 text-secondary" />
-                <p className="text-sm font-medium text-text">Free Shipping</p>
+                <p className="text-sm font-medium text-gray-900">Free Shipping</p>
               </div>
-              <div className="bg-surface border border-border rounded-xl p-4 text-center">
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
                 <Shield className="w-8 h-8 mx-auto mb-2 text-success" />
-                <p className="text-sm font-medium text-text">2 Year Warranty</p>
+                <p className="text-sm font-medium text-gray-900">2 Year Warranty</p>
               </div>
-              <div className="bg-surface border border-border rounded-xl p-4 text-center">
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
                 <RefreshCw className="w-8 h-8 mx-auto mb-2 text-warning" />
-                <p className="text-sm font-medium text-text">30 Day Returns</p>
+                <p className="text-sm font-medium text-gray-900">30 Day Returns</p>
               </div>
             </motion.div>
 
             {product.specs && Object.keys(product.specs).length > 0 && (
-              <motion.div className="bg-surface border border-border rounded-xl p-6" variants={itemVariants}>
-                <h2 className="text-xl font-bold text-text mb-4">Specifications</h2>
+              <motion.div className="bg-gray-50 border border-gray-200 rounded-xl p-6" variants={itemVariants}>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Specifications</h2>
                 <dl className="space-y-3">
                   {Object.entries(product.specs).map(([key, value]) => (
-                    <div key={key} className="flex justify-between py-2 border-b border-border last:border-0">
-                      <dt className="text-textSecondary capitalize font-medium">
+                    <div key={key} className="flex justify-between py-2 border-b border-gray-200 last:border-0">
+                      <dt className="text-gray-600 capitalize font-medium">
                         {key.replace('_', ' ')}:
                       </dt>
-                      <dd className="text-text font-medium">{String(value)}</dd>
+                      <dd className="text-gray-900 font-medium">{String(value)}</dd>
                     </div>
                   ))}
                 </dl>

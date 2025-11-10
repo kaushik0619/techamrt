@@ -23,15 +23,14 @@ const slides = [
     buttonLink: 'deals',
   },
   {
-    title: 'Premium Back Covers',
-    subtitle: 'Style meets protection. Discover our new collection of premium cases for all your devices.',
-    image: 'https://images.pexels.com/photos/1647976/pexels-photo-1647976.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    title: 'Unpack the z fold 7 and flip 7 series',
+    image: 'public/samsungfold.png',
     buttonText: 'Shop Covers',
     buttonLink: 'shop',
   },
   {
-    title: 'Ultimate Car Accessories',
-    subtitle: 'Upgrade your ride with the latest in-car technology and accessories for a smarter drive.',
+    title: 'Apple covers collection',
+    subtitle: 'Get a grip on your essentials.',
     image: 'https://images.pexels.com/photos/3807378/pexels-photo-3807378.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     buttonText: 'View Collection',
     buttonLink: 'shop',
@@ -119,7 +118,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
   }, [page]);
 
   return (
-    <div className="bg-background">
+    <div className="bg-white">
       {/* Hero Section */}
       <section className="relative h-[70vh] w-full overflow-hidden bg-neutral-900">
         <AnimatePresence initial={false} custom={direction}>
@@ -202,9 +201,9 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
       </section>
 
       {/* Shop by Category Section */}
-      <section className="py-16 bg-surface">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-text mb-10">Shop by Category</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-10">Shop by Category</h2>
           <div className="flex overflow-x-auto gap-6 pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:gap-8 scrollbar-hide">
             {categories.map((category) => (
               <div key={category.name} className="relative rounded-xl overflow-hidden group cursor-pointer shadow-sm w-64 sm:w-72 flex-shrink-0 lg:w-auto" onClick={() => onNavigate('shop')}>
@@ -219,14 +218,14 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
       </section>
 
       {/* Repair Section */}
-      <section className="py-16 bg-background">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-surface rounded-2xl p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 border border-border">
+          <div className="bg-gray-50 rounded-2xl p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 border border-gray-200">
             <div className="md:w-1/2 text-center md:text-left">
-              <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Device Not Working?
               </h2>
-              <p className="text-textSecondary mb-6">
+              <p className="text-gray-600 mb-6">
                 Don't worry! Our expert technicians can fix it. From cracked screens to battery issues, we've got you covered.
               </p>
               <button
@@ -249,17 +248,17 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-16 bg-surface">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-text mb-10">Featured Products</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-10">Featured Products</h2>
           <div className="flex overflow-x-auto gap-6 pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:gap-8 scrollbar-hide">
             {featuredProducts.map((product) => (
               <div
                 key={product.id}
                 onClick={() => onSelectProduct(product.id)}
-                className="bg-background border border-border rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-64 sm:w-72 flex-shrink-0 lg:w-auto"
+                className="bg-white border border-gray-200 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-64 sm:w-72 flex-shrink-0 lg:w-auto"
               >
-                <div className="relative h-56 bg-surface">
+                <div className="relative h-56 bg-gray-50">
                   <img
                     src={product.images[0]}
                     alt={product.name}
@@ -267,7 +266,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
                   />
                 </div>
                 <div className="p-4 text-center">
-                  <h3 className="text-base font-semibold text-text truncate">{product.name}</h3>
+                  <h3 className="text-base font-semibold text-gray-900 truncate">{product.name}</h3>
                   <p className="text-lg font-bold text-primary mt-2">₹{product.price.toFixed(2)}</p>
                 </div>
               </div>

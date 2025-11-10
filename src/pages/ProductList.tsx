@@ -102,9 +102,9 @@ const FilterSidebar = ({
 
   return (
     <aside className="w-full lg:w-1/4 lg:pr-8">
-      <div className="space-y-6 p-4 border border-border rounded-xl sticky top-24 bg-surface">
+      <div className="space-y-6 p-4 border border-gray-200 rounded-xl sticky top-24 bg-white">
         <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-text">Filters</h3>
+          <h3 className="font-semibold text-gray-900">Filters</h3>
           {hasActiveFilters && (
             <button 
               onClick={onClearFilters}
@@ -118,70 +118,70 @@ const FilterSidebar = ({
 
         {/* Categories */}
         <div>
-          <h3 className="font-semibold text-text mb-3">Category</h3>
+          <h3 className="font-semibold text-gray-900 mb-3">Category</h3>
           <div className="space-y-2">
             {categories.map((category) => (
               <label key={category.value} className="flex items-center cursor-pointer">
                 <input 
                   type="checkbox" 
-                  className="h-4 w-4 rounded border-border bg-transparent text-primary focus:ring-primary cursor-pointer"
+                  className="h-4 w-4 rounded border-gray-300 bg-transparent text-primary focus:ring-primary cursor-pointer"
                   checked={filters.categories.includes(category.value)}
                   onChange={() => handleCategoryChange(category.value)}
                 />
-                <span className="ml-3 text-sm text-textSecondary">{category.label}</span>
+                <span className="ml-3 text-sm text-gray-600">{category.label}</span>
               </label>
             ))}
           </div>
         </div>
 
         {/* Subcategories */}
-        <div className="border-t border-border pt-6">
-          <h3 className="font-semibold text-text mb-3">Product Type</h3>
+        <div className="border-t border-gray-200 pt-6">
+          <h3 className="font-semibold text-gray-900 mb-3">Product Type</h3>
           <div className="space-y-2">
             {subcategories.map((subcategory) => (
               <label key={subcategory.value} className="flex items-center cursor-pointer">
                 <input 
                   type="checkbox" 
-                  className="h-4 w-4 rounded border-border bg-transparent text-primary focus:ring-primary cursor-pointer"
+                  className="h-4 w-4 rounded border-gray-300 bg-transparent text-primary focus:ring-primary cursor-pointer"
                   checked={filters.subcategories.includes(subcategory.value)}
                   onChange={() => handleSubcategoryChange(subcategory.value)}
                 />
-                <span className="ml-3 text-sm text-textSecondary">{subcategory.label}</span>
+                <span className="ml-3 text-sm text-gray-600">{subcategory.label}</span>
               </label>
             ))}
           </div>
         </div>
 
         {/* Price Range */}
-        <div className="border-t border-border pt-6">
-          <h3 className="font-semibold text-text mb-4">Price Range</h3>
+        <div className="border-t border-gray-200 pt-6">
+          <h3 className="font-semibold text-gray-900 mb-4">Price Range</h3>
           <input
             type="range"
             min="10"
             max="10000000"
             value={priceRange}
             onChange={(e) => handlePriceChange(Number(e.target.value))}
-            className="w-full h-2 bg-border rounded-lg appearance-none cursor-pointer accent-primary"
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
           />
-          <div className="flex justify-between text-sm text-textSecondary mt-2">
+          <div className="flex justify-between text-sm text-gray-600 mt-2">
             <span>₹{filters.minPrice}</span>
             <span>₹{priceRange.toLocaleString()}</span>
           </div>
         </div>
 
         {/* Brands */}
-        <div className="border-t border-border pt-6">
-          <h3 className="font-semibold text-text mb-3">Brand</h3>
+        <div className="border-t border-gray-200 pt-6">
+          <h3 className="font-semibold text-gray-900 mb-3">Brand</h3>
           <div className="space-y-2">
             {brands.map((brand) => (
               <label key={brand.value} className="flex items-center cursor-pointer">
                 <input 
                   type="checkbox" 
-                  className="h-4 w-4 rounded border-border bg-transparent text-primary focus:ring-primary cursor-pointer"
+                  className="h-4 w-4 rounded border-gray-300 bg-transparent text-primary focus:ring-primary cursor-pointer"
                   checked={filters.brands.includes(brand.value)}
                   onChange={() => handleBrandChange(brand.value)}
                 />
-                <span className="ml-3 text-sm text-textSecondary">{brand.label}</span>
+                <span className="ml-3 text-sm text-gray-600">{brand.label}</span>
               </label>
             ))}
           </div>
@@ -194,9 +194,9 @@ const FilterSidebar = ({
 const ProductCard = ({ product, onSelectProduct }: { product: Product; onSelectProduct: (id: string) => void; }) => (
   <div
     onClick={() => onSelectProduct(product._id)}
-    className="bg-background border border-border rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+    className="bg-white border border-gray-200 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
   >
-    <div className="relative h-56 bg-surface">
+    <div className="relative h-56 bg-gray-50">
       <img
         src={product.images[0] || 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg'}
         alt={product.name}
@@ -208,7 +208,7 @@ const ProductCard = ({ product, onSelectProduct }: { product: Product; onSelectP
         {product.category.replace('_', ' ')}
         {product.subcategory && ` - ${product.subcategory}`}
       </div>
-      <h3 className="text-base font-semibold text-text truncate group-hover:text-primary">{product.name}</h3>
+      <h3 className="text-base font-semibold text-gray-900 truncate group-hover:text-primary">{product.name}</h3>
       <div className="flex items-center justify-center mt-4">
         <p className="text-lg font-bold text-primary">₹{product.price.toFixed(2)}</p>
       </div>
@@ -334,7 +334,7 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
@@ -355,11 +355,11 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
   }
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-text">Our Collection</h1>
-          <p className="text-textSecondary mt-2">
+          <h1 className="text-4xl font-bold text-gray-900">Our Collection</h1>
+          <p className="text-gray-600 mt-2">
             Showing {filteredProducts.length} of {products.length} products
           </p>
         </div>
@@ -373,9 +373,9 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
           
           <main className="w-full lg:w-3/4">
             {filteredProducts.length === 0 ? (
-              <div className="text-center py-20 bg-surface rounded-xl border border-border">
-                <p className="text-text text-lg mb-4">No products found matching your filters</p>
-                <p className="text-textSecondary text-sm mb-4">
+              <div className="text-center py-20 bg-gray-50 rounded-xl border border-gray-200">
+                <p className="text-gray-900 text-lg mb-4">No products found matching your filters</p>
+                <p className="text-gray-600 text-sm mb-4">
                   Active filters: {filters.categories.join(', ')} {filters.subcategories.join(', ')}
                 </p>
                 <button
@@ -397,20 +397,20 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
                 
                 {/* Pagination */}
                 <div className="flex justify-center items-center mt-12 space-x-2">
-                  <button className="p-2 rounded-md hover:bg-surface">
-                    <ChevronLeft className="w-5 h-5 text-textSecondary" />
+                  <button className="p-2 rounded-md hover:bg-gray-100">
+                    <ChevronLeft className="w-5 h-5 text-gray-600" />
                   </button>
                   <button className="w-8 h-8 rounded-md bg-primary text-white text-sm font-medium">
                     1
                   </button>
-                  <button className="w-8 h-8 rounded-md hover:bg-surface text-sm font-medium text-textSecondary">
+                  <button className="w-8 h-8 rounded-md hover:bg-gray-100 text-sm font-medium text-gray-600">
                     2
                   </button>
-                  <button className="w-8 h-8 rounded-md hover:bg-surface text-sm font-medium text-textSecondary">
+                  <button className="w-8 h-8 rounded-md hover:bg-gray-100 text-sm font-medium text-gray-600">
                     3
                   </button>
-                  <button className="p-2 rounded-md hover:bg-surface">
-                    <ChevronRight className="w-5 h-5 text-textSecondary" />
+                  <button className="p-2 rounded-md hover:bg-gray-100">
+                    <ChevronRight className="w-5 h-5 text-gray-600" />
                   </button>
                 </div>
               </>

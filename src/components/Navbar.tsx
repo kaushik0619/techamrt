@@ -104,7 +104,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
   };
 
   return (
-    <header className="bg-neutral-900 text-white sticky top-0 z-50 border-b border-neutral-800">
+    <header className="bg-[#000000] text-white sticky top-0 z-50 border-b border-neutral-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Left Section */}
@@ -113,7 +113,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
               <img 
                 src="/logo-light.png"
                 alt="ABC Accessories But Cheaper"
-                className="h-10 md:h-12"
+                className="h-12 md:h-15 w-150"
               />
             </button>
             <nav className="hidden md:flex items-center gap-6">
@@ -246,12 +246,12 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-0 bg-neutral-900 z-50 p-6 md:hidden overflow-y-auto"
+            className="fixed inset-0 bg-[#000000] z-50 p-6 md:hidden overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-8">
               <img src="/logo-light.png" alt="Logo" className="h-10" />
               <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-neutral-400 hover:text-white">
-                <X className="w-6 h-6" />
+                <X className="w-7 h-7" />
               </button>
             </div>
             <nav className="flex flex-col gap-6">
@@ -278,6 +278,55 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                   )}
                 </Fragment>
               ))}
+              
+              {/* Authentication-related items for mobile */}
+              <div className="border-t border-neutral-800 pt-6 mt-2">
+                {user ? (
+                  <>
+                    <div className="mb-4 pb-4 border-b border-neutral-800">
+                      <p className="text-sm font-medium text-neutral-300">{user.username}</p>
+                      <p className="text-xs text-neutral-500">{user.email}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        handleMobileNavClick('admin');
+                      }}
+                      className="w-full text-left text-lg font-medium text-neutral-300 hover:text-primary-DEFAULT transition-colors flex items-center gap-2 mb-4"
+                    >
+                      <LayoutDashboard className="w-5 h-5" />
+                      Dashboard
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleMobileNavClick('orders');
+                      }}
+                      className="w-full text-left text-lg font-medium text-neutral-300 hover:text-primary-DEFAULT transition-colors flex items-center gap-2 mb-4"
+                    >
+                      <Package className="w-5 h-5" />
+                      Orders
+                    </button>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full text-left text-lg font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-2"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      handleMobileNavClick('login');
+                    }}
+                    className="w-full text-left text-lg font-medium text-neutral-300 hover:text-primary-DEFAULT transition-colors"
+                  >
+                    Login
+                  </button>
+                )}
+              </div>
             </nav>
           </motion.div>
         )}
