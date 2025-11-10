@@ -18,7 +18,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    'https://accessoriesbutcheaper.onrender.com',  // ← Add your production frontend URL
+    'https://accessoriesbutcheaper.com',  // ← Add your production frontend URL
     process.env.FRONTEND_URL || ''  // ← Also allow from env variable
   ].filter(Boolean),  // Remove empty strings
   credentials: true,
