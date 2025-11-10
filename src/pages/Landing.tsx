@@ -24,7 +24,7 @@ const slides = [
   },
   {
     title: 'Unpack the z fold 7 and flip 7 series',
-    image: 'public/samsungfold.png',
+    image: '/samsungfold.png',
     buttonText: 'Shop Covers',
     buttonLink: 'shop',
   },
