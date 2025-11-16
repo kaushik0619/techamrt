@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff; /* background */
+    color: #000000; /* text */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .animate-gradient-text {
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-animation 4s ease infinite;
+  }
+  .shadow-glow-primary {
+    box-shadow: 0 0 20px -5px theme('colors.primary / 40%');
+  }
+  .bg-grid-pattern {
+    background-image: linear-gradient(theme('colors.border / 50%') 1px, transparent 1px), linear-gradient(to right, theme('colors.border / 50%') 1px, transparent 1px);
+    background-size: 2rem 2rem;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .marquee {
+    overflow: hidden;
+    position: relative;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 1.25rem; /* 20px */
+    align-items: center;
+    will-change: transform;
+  }
+  .marquee-track > * {
+    flex: 0 0 auto;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes gradient-animation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes marquee-left {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(50%); }
+}
+
+/* helper utilities using the keyframes; duration can be overridden inline */
+.animate-marquee-left {
+  animation: marquee-left linear infinite;
+}
+.animate-marquee-right {
+  animation: marquee-right linear infinite;
+}
