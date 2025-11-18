@@ -121,7 +121,7 @@ function ContactForm() {
         <textarea value={message} onChange={e => setMessage(e.target.value)} id="message" rows={4} required className="bg-white border border-gray-200 text-gray-900 rounded-lg w-full p-3 focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200"></textarea>
       </div>
       <div>
-        <button type="submit" disabled={isSubmitting} className="w-full flex items-center justify-center gap-2 bg-primary text-white font-semibold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity shadow-glow-primary">
+        <button type="submit" disabled={isSubmitting} className="w-full flex items-center justify-center gap-2 btn-brand py-3 px-4 rounded-lg hover:opacity-90 transition-opacity shadow-glow-primary">
           <Send className="w-5 h-5" />
           {isSubmitting ? 'Sending...' : 'Send Message'}
         </button>

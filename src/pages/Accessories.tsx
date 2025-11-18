@@ -72,6 +72,14 @@ export function Accessories({ onSelectProduct, category, subcategory }: Accessor
   const [loading, setLoading] = useState<'brands' | 'products' | false>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const formatUiCategory = (cat?: string) => {
+    if (!cat) return '';
+    if (cat === 'spare_parts') return 'Spare Parts';
+    return cat.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
+  const displayCategory = subcategory || formatUiCategory(category);
+
   useEffect(() => {
     async function fetchBrands() {
       try {
@@ -276,7 +284,7 @@ export function Accessories({ onSelectProduct, category, subcategory }: Accessor
             </button>
           </div>
           <h2 className="text-3xl font-bold text-neutral-900 mb-8 text-center">
-            {selectedBrand} {subcategory || category} {category === 'spare_parts' ? 'Parts' : 'Accessories'}
+            {selectedBrand} {displayCategory}
           </h2>
           {loading === 'products' ? (
             <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-DEFAULT"></div></div>
@@ -292,7 +300,7 @@ export function Accessories({ onSelectProduct, category, subcategory }: Accessor
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center text-neutral-500">No spare parts found for {selectedBrand} in {subcategory || 'this category'}.</p>
+                  <p className="text-center text-neutral-500">No {displayCategory} found for {selectedBrand} in {subcategory || 'this category'}.</p>
                 )
               ) : (
                 <div className="space-y-12">
@@ -325,7 +333,7 @@ export function Accessories({ onSelectProduct, category, subcategory }: Accessor
                   </section>
 
                   <section>
-                    <h3 className="text-2xl font-semibold text-neutral-900 mb-4 text-center">Tempered Glass</h3>
+                    <h3 className="text-2xl font-semibold text-neutral-900 mb-4 text-center">Screen protector</h3>
                     {temperedGlass.length > 0 ? (
                       <div
                         ref={glassRef}
@@ -391,7 +399,7 @@ export function Accessories({ onSelectProduct, category, subcategory }: Accessor
       <div>
         <h1 className="text-4xl font-bold text-neutral-900 text-center">Choose a Brand</h1>
         <p className="text-neutral-600 mt-2 text-center mb-12">
-          Select a brand to see available {subcategory || category} accessories.
+          Select a brand to see available {displayCategory}.
         </p>
         {brands.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">

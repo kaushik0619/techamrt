@@ -67,7 +67,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   async function addToCart(productId: string, quantity: number = 1) {
     if (!user) throw new Error('Please login to add items to cart');
-    await api.post('/cart', { productId, quantity });
+    await api.post('/api/cart', { productId, quantity });
     await loadCart();
   }
 
@@ -76,18 +76,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
       await removeFromCart(itemId);
       return;
     }
-    await api.put(`/cart/${itemId}`, { quantity });
+    await api.put(`/api/cart/${itemId}`, { quantity });
     await loadCart();
   }
 
   async function removeFromCart(itemId: string) {
-    await api.delete(`/cart/${itemId}`);
+    await api.delete(`/api/cart/${itemId}`);
     await loadCart();
   }
 
   async function clearCart() {
     if (!user) return;
-    await api.delete('/cart');
+    await api.delete('/api/cart');
     setItems([]);
   }
 

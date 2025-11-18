@@ -82,7 +82,7 @@ export function AdminDashboard() {
   async function handleDeleteProduct(productId: string) {
     if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
       try {
-        await api.delete(`/admin/products/${productId}`);
+        await api.delete(`/api/admin/products/${productId}`);
         loadDashboardData(); // Refresh data after deletion
       } catch (err: any) {
         setError(err.message || 'Failed to delete product');

@@ -159,7 +159,7 @@ export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
         submitCategory = 'Spare Parts';
       }
 
-      await api.post('/products', {
+      await api.post('/api/products', {
         name: formData.name,
         description: formData.description,
         category: submitCategory || formData.category,

@@ -215,7 +215,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
 
                 <button
                   onClick={handleAddToCart}
-                  className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary text-white rounded-lg font-bold text-lg hover:opacity-90 transition-all shadow-glow-primary transform hover:scale-[1.02]"
+                  className="w-full flex items-center justify-center gap-3 px-8 py-4 btn-brand rounded-lg font-bold text-lg hover:opacity-90 transition-all shadow-glow-primary transform hover:scale-[1.02]"
                 >
                   <ShoppingCart className="w-6 h-6" />
                   Add to Cart

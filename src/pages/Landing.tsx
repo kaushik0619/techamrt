@@ -17,14 +17,15 @@ interface LandingProps {
 
 const slides = [
   {
-    title: 'Deal of the Day',
-    subtitle: 'Unbeatable prices on our top-rated gadgets. Don\'t miss out on these limited-time offers!',
-    image: 'https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    title: 'Dont miss this exclusive deals!',
+    subtitle: 'Grab it now before it is too late.',
+    image: '/collection.png',
     buttonText: 'Explore Deals',
     buttonLink: 'deals',
   },
   {
-    title: 'Unpack the z fold 7 and flip 7 series',
+    title: 'Power up your Z Series',
+    subtitle: 'Find cases and accessories that match your lifestyle.',
     image: '/samsungfold.png',
     buttonText: 'Shop Covers',
     buttonLink: 'shop',
@@ -295,7 +296,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
             onClick={() => onNavigate(slides[slideIndex].buttonLink)}
-            className="bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition-transform transform hover:scale-105"
+            className="btn-brand px-8 py-3 hover:opacity-90 transition-transform transform hover:scale-105"
           >
             {slides[slideIndex].buttonText}
           </motion.button>
@@ -368,7 +369,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onNavigate('shop')}
-              className="bg-primary text-white font-semibold px-6 py-3 rounded-lg shadow-lg"
+              className="btn-brand px-6 py-3 shadow-lg"
             >
               Shop Cases
             </motion.button>
@@ -435,7 +436,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
               </p>
               <button
                 onClick={() => onNavigate('repair')}
-                className="bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition-transform transform hover:scale-105 flex items-center gap-2 mx-auto md:mx-0"
+                className="btn-brand px-8 py-3 hover:opacity-90 transition-transform transform hover:scale-105 flex items-center gap-2 mx-auto md:mx-0"
               >
                 <Wrench className="w-5 h-5" />
                 Book a Repair

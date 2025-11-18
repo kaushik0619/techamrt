@@ -50,7 +50,7 @@ function NewsletterForm() {
         placeholder="Enter your email"
         className="w-full bg-neutral-800 border border-neutral-700 rounded-l-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-DEFAULT"
       />
-      <button type="submit" disabled={isSubmitting} className="bg-primary-DEFAULT hover:bg-primary-hover p-2 rounded-r-md">
+      <button type="submit" disabled={isSubmitting} className="btn-brand p-2 rounded-r-md">
         <Send className="w-5 h-5" />
       </button>
     </form>

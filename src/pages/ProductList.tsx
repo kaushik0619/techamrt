@@ -387,7 +387,7 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
         <p className="text-error mb-4">{error}</p>
         <button 
           onClick={loadProducts}
-          className="px-4 py-2 bg-primary text-white rounded hover:opacity-90"
+          className="px-4 py-2 btn-brand rounded hover:opacity-90"
         >
           Try Again
         </button>
@@ -433,7 +433,7 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
                 </p>
                 <button
                   onClick={handleClearFilters}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90"
+                  className="px-6 py-2 btn-brand rounded-lg hover:opacity-90"
                 >
                   Clear Filters
                 </button>
@@ -453,7 +453,7 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
                   <button className="p-2 rounded-md hover:bg-gray-100">
                     <ChevronLeft className="w-5 h-5 text-gray-600" />
                   </button>
-                  <button className="w-8 h-8 rounded-md bg-primary text-white text-sm font-medium">
+                  <button className="w-8 h-8 rounded-md btn-brand text-white text-sm font-medium">
                     1
                   </button>
                   <button className="w-8 h-8 rounded-md hover:bg-gray-100 text-sm font-medium text-gray-600">

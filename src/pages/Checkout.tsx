@@ -33,7 +33,7 @@ export function Checkout({ onSuccess }: CheckoutProps) {
         paymentMethod: paymentMethod
       };
 
-      const response = await api.post('/orders', orderData);
+      const response = await api.post('/api/orders', orderData);
       
       clearCart();
       alert('Order placed successfully!');

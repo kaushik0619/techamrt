@@ -23,12 +23,50 @@ const repairBrands: Brand[] = [
     name: 'Apple',
     logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg',
     models: [
-      { id: 'iphone-15-pro', name: 'iPhone 15 Pro', imageUrl: 'https://images.pexels.com/photos/18463581/pexels-photo-18463581.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 17 pro max', name: 'iPhone 17 pro max', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 17 pro', name: 'iPhone 17 pro', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone-air', name: 'iPhone air', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 17', name: 'iPhone 17', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone-16 e', name: 'iPhone 16 e', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 16 pro max', name: 'iPhone 16 pro max', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 16 pro', name: 'iPhone 16 pro', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 16 plus', name: 'iPhone 16 plus', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 16', name: 'iPhone 16', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 15 plus', name: 'iPhone 15 plus', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 15 pro max', name: 'iPhone 15 Pro max', imageUrl: 'https://images.pexels.com/photos/18463581/pexels-photo-18463581.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 15 pro', name: 'iPhone 15 pro', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },  
       { id: 'iphone-15', name: 'iPhone 15', imageUrl: 'https://images.pexels.com/photos/18332331/pexels-photo-18332331.jpeg?auto=compress&cs=tinysrgb&w=400' },
-      { id: 'iphone-14-pro', name: 'iPhone 14 Pro', imageUrl: 'https://images.pexels.com/photos/13684853/pexels-photo-13684853.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone 14 plus', name: 'iPhone 14 plus', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone-14-pro max', name: 'iPhone 14 Pro max', imageUrl: 'https://images.pexels.com/photos/13684853/pexels-photo-13684853.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone-14 pro', name: 'iPhone 14 pro', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
       { id: 'iphone-14', name: 'iPhone 14', imageUrl: 'https://images.pexels.com/photos/1294886/pexels-photo-1294886.jpeg?auto=compress&cs=tinysrgb&w=400' },
-      { id: 'iphone-13', name: 'iPhone 13', imageUrl: 'https://images.pexels.com/photos/10403900/pexels-photo-10403900.jpeg?auto=compress&cs=tinysrgb&w=400' },
-      { id: 'iphone-se', name: 'iPhone SE', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone-se 2022', name: 'iPhone SE 2022', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone-13 pro max', name: 'iPhone 13 pro max', imageUrl: 'https://images.pexels.com/photos/10403900/pexels-photo-10403900.jpeg?auto=compress&cs=tinysrgb&w=400' },
+       { id: 'iphone-13 pro', name: 'iPhone 13 pro', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+        { id: 'iphone-13', name: 'iPhone 13', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+         { id: 'iphone-13-mini', name: 'iPhone 13 mini', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+      { id: 'iphone-12-pro max', name: 'iPhone 12 Pro Max', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+       { id: 'iphone-12-pro', name: 'iPhone 12 Pro', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+        { id: 'iphone-12-mini', name: 'iPhone 12 Mini', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+         { id: 'iphone-12', name: 'iPhone 12', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+          { id: 'iphone-se-2020', name: 'iPhone SE 2020', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+           { id: 'iphone-11-pro max', name: 'iPhone 11 pro max', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+            { id: 'iphone-11-pro', name: 'iPhone 11 pro', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+             { id: 'iphone-11', name: 'iPhone 11', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+              { id: 'iphone-xs-max', name: 'iPhone XS Max', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+             { id: 'iphone-xs', name: 'iPhone XS', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+              { id: 'iphone-xr', name: 'iPhone XR', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+               { id: 'iphone-x', name: 'iPhone X', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+                { id: 'iphone-8-plus', name: 'iPhone 8 Plus', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+                 { id: 'iphone-8', name: 'iPhone 8', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+                  { id: 'iphone-7-plus', name: 'iPhone 7 Plus', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+                 { id: 'iphone-7', name: 'iPhone 7', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+                  { id: 'iphone-se-gen-1', name: 'iPhone SE first generation', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+                   { id: 'iphone-6s-plus', name: 'iPhone 6s Plus', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+                    { id: 'iphone-6s', name: 'iPhone 6s', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+                     { id: 'iphone-6-plus', name: 'iPhone 6 Plus', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+                      { id: 'iphone-6', name: 'iPhone 6', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
+
     ],
   },
   {
@@ -203,7 +241,7 @@ function RepairBookingFlow() {
                 >
                   <button
                     onClick={handleContinue}
-                    className="w-full bg-primary text-white font-semibold py-4 px-8 rounded-lg hover:opacity-90 transition-opacity shadow-lg"
+                    className="w-full btn-brand py-4 px-8 hover:opacity-90 transition-opacity shadow-lg"
                   >
                     Continue to Book Appointment
                   </button>
@@ -252,7 +290,7 @@ function RepairBookingFlow() {
               <button 
                 type="submit" 
                 disabled={isSubmitting} 
-                className="w-full bg-primary text-white font-semibold py-3 px-8 rounded-lg hover:opacity-90 transition-opacity shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn-brand py-3 px-8 rounded-lg hover:opacity-90 transition-opacity shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Booking...' : 'Book Appointment'}
               </button>
@@ -273,7 +311,7 @@ function RepairBookingFlow() {
             </div>
             <button 
               onClick={resetFlow} 
-              className="bg-primary text-white font-semibold py-3 px-8 rounded-lg hover:opacity-90 transition-opacity shadow-lg"
+              className="btn-brand py-3 px-8 hover:opacity-90 transition-opacity shadow-lg"
             >
               Book Another Repair
             </button>
