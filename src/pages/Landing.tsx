@@ -19,7 +19,7 @@ const slides = [
   {
     title: 'Dont miss this exclusive deals!',
     subtitle: 'Grab it now before it is too late.',
-    image: '/collection.png',
+    image: '/featured.png',
     buttonText: 'Explore Deals',
     buttonLink: 'deals',
   },
@@ -377,7 +377,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onNavigate('repair')}
-              className="bg-white/10 text-white border border-white/20 px-6 py-3 rounded-lg"
+             className="text-white px-6 py-3 rounded-lg shadow-lg bg-[linear-gradient(to_right,#F59B2E,#E33B57,#2AA7DF)]"
             >
               Learn More
             </motion.button>
@@ -406,7 +406,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
                   </div>
                   <div className="p-4 text-center">
                     <h3 className="text-base font-semibold text-gray-900 truncate">{product.name}</h3>
-                    <p className="text-lg font-bold text-primary mt-2">₹{product.price.toFixed(2)}</p>
+                    <p className="text-lg font-bold text-black mt-2">₹{product.price.toFixed(2)}</p>
                   </div>
                 </div>
               ))}
@@ -415,9 +415,11 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
           <div className="text-center mt-12">
             <button
               onClick={() => onNavigate('shop')}
-              className="text-primary font-semibold hover:underline flex items-center gap-2 justify-center mx-auto"
+               className="font-semibold flex items-center gap-2 justify-center mx-auto 
+             bg-[linear-gradient(to_right,#F59B2E,#E33B57,#2AA7DF)] 
+             bg-clip-text text-transparent hover:opacity-90 transition"
             >
-              View All Products <ArrowRight className="w-4 h-4" />
+              View All Products <ArrowRight className="w-4 h-4 " />
             </button>
           </div>
         </div>
@@ -459,7 +461,9 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900">AirPod Cases Collection</h2>
             <div>
-              <button onClick={() => onNavigate('shop', 'accessories', 'airpods')} className="text-primary font-semibold hover:underline">View Collection</button>
+              <button onClick={() => onNavigate('shop', 'accessories', 'airpods')}   className="font-semibold flex items-center gap-2 justify-center mx-auto 
+             bg-[linear-gradient(to_right,#F59B2E,#E33B57,#2AA7DF)] 
+             bg-clip-text text-transparent hover:opacity-90 transition">View Collection</button>
             </div>
           </div>
 
@@ -476,7 +480,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
                   </div>
                   <div className="p-4 text-center">
                     <h3 className="text-sm md:text-base font-semibold text-gray-900 truncate">{product.name}</h3>
-                    <p className="text-md font-bold text-primary mt-2">₹{product.price.toFixed(2)}</p>
+                    <p className="text-md font-bold text-black mt-2">₹{product.price.toFixed(2)}</p>
                   </div>
                 </div>
               ))}

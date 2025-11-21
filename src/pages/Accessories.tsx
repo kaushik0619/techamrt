@@ -48,7 +48,7 @@ const ProductCard = ({ product, onSelectProduct }: { product: Product; onSelectP
     <div className="p-4 text-center">
       <h3 className="text-base font-semibold text-neutral-900 truncate group-hover:text-primary-DEFAULT">{product.name}</h3>
       <div className="flex items-center justify-center mt-2">
-        <p className="text-lg font-bold text-primary-DEFAULT">₹{product.price.toFixed(2)}</p>
+        <p className="text-lg font-bold text-black">₹{product.price.toFixed(2)}</p>
       </div>
     </div>
   </motion.div>

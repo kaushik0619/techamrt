@@ -98,7 +98,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
       isActive
         ? 'text-white'
         : 'text-neutral-400 hover:text-white'
-    } after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-full after:h-[2px] after:bg-primary-DEFAULT after:transition-transform after:duration-300 ${
+    } after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-full after:h-[2px] after:bg-gradient-to-r after:from-[#F59B2E] after:via-[#E33B57] after:to-[#2AA7DF] after:transition-transform after:duration-300 ${
       isActive ? 'after:scale-x-100' : 'after:scale-x-0'
     } hover:after:scale-x-100`;
   };

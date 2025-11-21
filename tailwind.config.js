@@ -29,7 +29,8 @@ export default {
         '2xl': '1.5rem',
       },
       boxShadow: {
-        'glow-primary': '0 0 20px 0 rgba(158, 127, 255, 0.28)',
+        // Glow now uses a warm/pink tint from the logo gradient (E33B57)
+        'glow-primary': '0 0 20px 0 rgba(227, 59, 87, 0.28)',
       },
       animation: {
         'gradient-text': 'gradient-text 5s ease infinite',

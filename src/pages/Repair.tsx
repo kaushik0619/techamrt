@@ -105,6 +105,7 @@ const repairBrands: Brand[] = [
   },
 ];
 
+
 const features = [
   { icon: Wrench, title: 'Expert Technicians', description: 'Our technicians are certified and trained to handle any device issue.' },
   { icon: Smartphone, title: 'Genuine Parts', description: 'We use only high-quality, genuine parts for all our repairs.' },
@@ -184,7 +185,7 @@ function RepairBookingFlow() {
       case 'selection':
         return (
           <motion.div key="selection" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}>
-            <div className="space-y-8">
+            <div className="space-y-8r">
               {/* Step 1: Select Brand */}
               <div>
                 <label htmlFor="brand-select" className="block text-2xl font-bold text-gray-900 mb-4">
@@ -194,7 +195,7 @@ function RepairBookingFlow() {
                   id="brand-select"
                   value={selectedBrand?.id || ''}
                   onChange={handleBrandChange}
-                  className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-white"
+                  className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-error focus:border-error outline-none transition-all bg-white"
                 >
                   <option value="">-- Select a Brand --</option>
                   {repairBrands.map((brand) => (
@@ -219,7 +220,7 @@ function RepairBookingFlow() {
                     id="model-select"
                     value={selectedModel?.id || ''}
                     onChange={handleModelChange}
-                    className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-white"
+                    className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-error focus:border-error outline-none transition-all bg-white"
                   >
                     <option value="">-- Select a Model --</option>
                     {selectedBrand.models.map((model) => (

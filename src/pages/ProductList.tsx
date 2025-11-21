@@ -232,7 +232,7 @@ const ProductCard = ({ product, onSelectProduct }: { product: Product; onSelectP
       </div>
       <h3 className="text-base font-semibold text-gray-900 truncate group-hover:text-primary">{product.name}</h3>
       <div className="flex items-center justify-center mt-4">
-        <p className="text-lg font-bold text-primary">₹{product.price.toFixed(2)}</p>
+        <p className="text-lg font-bold text-black">₹{product.price.toFixed(2)}</p>
       </div>
     </div>
   </div>
