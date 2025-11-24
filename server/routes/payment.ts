@@ -7,6 +7,7 @@ import { CartItem } from '../models/CartItem';
 import { OrderInsert } from '../models/Order';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import { sendOrderConfirmationEmails } from '../services/emailService';
+import { sendOrderConfirmationWhatsApp } from '../services/whatsappService';
 
 const router = Router();
 
@@ -94,23 +95,36 @@ export async function createFinalOrder(
   // 3. Clear the user's cart
   await cartCollection.deleteMany({ user_id: userId });
 
-  // 4. Send order confirmation emails
- try {
-  await sendOrderConfirmationEmails({
-    orderId: orderId.toString(),
-    customerName: customerName || shippingAddress.fullName,
-    customerEmail: customerEmail,
-    customerPhone: shippingAddress.phone,
-    orderDate: new Date(),
-    items: orderItems,
-    totalAmount: totalAmount,
-    paymentMethod: paymentMethod,
-    paymentStatus: orderData.payment_status || 'pending', // Add fallback value
-    shippingAddress: shippingAddress,
-  });
-} catch (emailError) {
-  console.error('Email notification failed, but order was created:', emailError);
-}
+    // 4. Send order confirmation via email and WhatsApp in parallel (non-blocking)
+    try {
+      const notificationPayload = {
+        orderId: orderId.toString(),
+        customerName: customerName || shippingAddress.fullName,
+        customerEmail: customerEmail,
+        customerPhone: shippingAddress.phone,
+        orderDate: new Date(),
+        items: orderItems,
+        totalAmount: totalAmount,
+        paymentMethod: paymentMethod,
+        paymentStatus: orderData.payment_status || 'pending', // Add fallback value
+        shippingAddress: shippingAddress,
+      };
+
+      const emailPromise = sendOrderConfirmationEmails(notificationPayload as any);
+      const waPromise = sendOrderConfirmationWhatsApp(notificationPayload as any);
+
+      Promise.allSettled([emailPromise, waPromise]).then((results) => {
+        results.forEach((r, idx) => {
+          if (r.status === 'fulfilled') {
+            console.log(`✅ Notification ${idx} sent successfully`);
+          } else {
+            console.error(`❌ Notification ${idx} failed:`, r.reason);
+          }
+        });
+      });
+    } catch (notifyError) {
+      console.error('❌ Error starting notifications for order:', notifyError);
+    }
 
   return orderId;
 }

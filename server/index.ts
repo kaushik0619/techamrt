@@ -8,6 +8,7 @@ import cartRoutes from './routes/cart';
 import ordersRoutes from './routes/orders';
 import adminRoutes from './routes/admin';
 import miscRoutes from './routes/misc';
+import whatsappWebhookRoutes from './routes/whatsappWebhook';
 
 dotenv.config();
 
@@ -52,6 +53,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/misc', miscRoutes);
+app.use('/webhook/whatsapp', whatsappWebhookRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

@@ -9,6 +9,7 @@ import { SalesEvent, SalesEventInsert } from '../models/SalesEvent';
 import { User } from '../models/User';
 import { authenticateToken, requireAdmin, AuthenticatedRequest } from '../middleware/auth';
 import { sendOrderConfirmationEmails } from '../services/emailService';
+import { sendOrderConfirmationWhatsApp } from '../services/whatsappService';
 
 const router = Router();
 
@@ -306,9 +307,9 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
       description: item.product.description || 'No description available'
     }));
 
-    // Send order confirmation emails
+    // Send order confirmation via email and WhatsApp in parallel (non-blocking)
     try {
-      await sendOrderConfirmationEmails({
+      const notificationPayload = {
         orderId: orderResult.insertedId.toString(),
         customerName: shippingAddress.fullName || user?.username || 'Customer',
         customerEmail: user?.email || '',
@@ -327,11 +328,24 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
           postalCode: shippingAddress.postalCode || shippingAddress.postal_code || '',
           phone: shippingAddress.phone || ''
         }
+      };
+
+      // Start both notifications in parallel and don't block the HTTP response.
+      const emailPromise = sendOrderConfirmationEmails(notificationPayload as any);
+      const waPromise = sendOrderConfirmationWhatsApp(notificationPayload as any);
+
+      // Log results when they settle.
+      Promise.allSettled([emailPromise, waPromise]).then((results) => {
+        results.forEach((r, idx) => {
+          if (r.status === 'fulfilled') {
+            console.log(`✅ Notification ${idx} sent successfully`);
+          } else {
+            console.error(`❌ Notification ${idx} failed:`, r.reason);
+          }
+        });
       });
-      console.log(`✅ Order confirmation emails sent for order ${orderResult.insertedId}`);
-    } catch (emailError) {
-      console.error('❌ Error sending order confirmation emails:', emailError);
-      // Don't fail the order creation if email fails
+    } catch (notifyError) {
+      console.error('❌ Error starting notifications for order:', notifyError);
     }
 
     res.status(201).json({ 

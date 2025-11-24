@@ -208,7 +208,7 @@ export function Checkout({ onSuccess }: CheckoutProps) {
               </div>
             </label>
 
-            <label className="flex items-center p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-blue-500 transition-colors opacity-50">
+            <label className="flex items-center p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-blue-500 transition-colors">
               <input
                 type="radio"
                 name="payment"
