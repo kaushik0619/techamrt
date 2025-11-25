@@ -1,5 +1,10 @@
 import express from 'express';
 import { sendNewsletterConfirmation, notifyAdminNewSubscriber, sendRepairRequestEmail, sendContactUsEmail } from '../services/emailService';
+import {
+  notifyAdminNewSubscriberWhatsApp,
+  sendRepairRequestWhatsApp,
+  sendContactUsWhatsApp
+} from '../services/whatsappService';
 
 const router = express.Router();
 
@@ -12,8 +17,9 @@ router.post('/newsletter', async (req, res) => {
     // Send confirmation to subscriber (non-blocking)
     sendNewsletterConfirmation(email, name).catch((err) => console.error(err));
 
-    // Notify admin
-    notifyAdminNewSubscriber(email).catch((err) => console.error(err));
+    // Notify admin (email + WhatsApp)
+    notifyAdminNewSubscriber(email).catch((err) => console.error('Error notifying admin (email):', err));
+    notifyAdminNewSubscriberWhatsApp(email).catch((err) => console.error('Error notifying admin (WhatsApp):', err));
 
     return res.json({ message: 'Subscribed' });
   } catch (error) {
@@ -33,6 +39,9 @@ router.post('/repair', async (req, res) => {
     // Send repair request email in background to avoid blocking the request
     sendRepairRequestEmail({ brand, model, problem, name, phone, email }).catch((err) => console.error('Error sending repair request email:', err));
 
+    // Forward repair request to admin via WhatsApp (non-blocking)
+    sendRepairRequestWhatsApp({ brand, model, problem, name, phone, email }).catch((err) => console.error('Error sending repair WhatsApp:', err));
+
     return res.json({ message: 'Repair request submitted' });
   } catch (error) {
     console.error('Error in /repair', error);
@@ -48,6 +57,9 @@ router.post('/contact', async (req, res) => {
 
     // Send contact email in background to avoid blocking the request
     sendContactUsEmail({ firstName, lastName, email, message, phone }).catch((err) => console.error('Error sending contact-us email:', err));
+
+    // Forward contact form to admin via WhatsApp (non-blocking)
+    sendContactUsWhatsApp({ firstName, lastName, email, message, phone }).catch((err) => console.error('Error sending contact-us WhatsApp:', err));
 
     return res.json({ message: 'Message sent' });
   } catch (error) {

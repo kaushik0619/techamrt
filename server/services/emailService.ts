@@ -435,3 +435,57 @@ export async function sendContactUsEmail(details: { firstName: string; lastName?
     console.error('❌ Error sending contact-us email:', error);
   }
 }
+
+// Send order status update emails to admin and customer
+export async function sendOrderStatusUpdateEmails(data: { orderId: string; customerName?: string; customerEmail?: string; customerPhone?: string; orderStatus?: string; paymentStatus?: string; trackingInfo?: string; items?: Array<{ name: string; quantity: number; price: number; description?: string }>; totalAmount?: number; shippingAddress?: OrderEmailData['shippingAddress']; }): Promise<void> {
+  try {
+    if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.warn('⚠️ Email configuration missing. Skipping order status emails.');
+      return;
+    }
+
+    const subject = `🔔 Order Update #${data.orderId} - ${data.orderStatus || 'Updated'}`;
+    const plainText = `Order ${data.orderId} status updated to ${data.orderStatus || 'Updated'}. Payment: ${data.paymentStatus || 'N/A'}. ${data.trackingInfo ? `Tracking: ${data.trackingInfo}` : ''}`;
+
+    // Notify admin
+    if (process.env.ADMIN_EMAIL) {
+      await transporter.sendMail({
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        to: process.env.ADMIN_EMAIL,
+        subject,
+        html: `
+          <div style="font-family: Arial, sans-serif;">
+            <h3>Order Update: #${data.orderId}</h3>
+            <p><strong>Status:</strong> ${data.orderStatus || 'Updated'}</p>
+            <p><strong>Payment:</strong> ${data.paymentStatus || 'N/A'}</p>
+            ${data.trackingInfo ? `<p><strong>Tracking:</strong> ${data.trackingInfo}</p>` : ''}
+            <p>${plainText}</p>
+          </div>
+        `,
+      });
+      console.log(`✅ Admin notified by email for order ${data.orderId}`);
+    }
+
+    // Notify customer
+    if (data.customerEmail) {
+      await transporter.sendMail({
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        to: data.customerEmail,
+        subject: `Your order #${data.orderId} update`,
+        html: `
+          <div style="font-family: Arial, sans-serif;">
+            <h3>Order Update</h3>
+            <p>Hi ${data.customerName || 'Customer'},</p>
+            <p>Your order <strong>#${data.orderId}</strong> status has been updated to <strong>${data.orderStatus || 'Updated'}</strong>.</p>
+            <p>Payment status: ${data.paymentStatus || 'N/A'}</p>
+            ${data.trackingInfo ? `<p>Tracking information: ${data.trackingInfo}</p>` : ''}
+            <p>Thank you for shopping with us.</p>
+          </div>
+        `,
+      });
+      console.log(`✅ Customer emailed for order ${data.orderId}`);
+    }
+  } catch (error) {
+    console.error('❌ Error sending order status update emails:', error);
+  }
+}

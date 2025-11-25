@@ -167,3 +167,32 @@ export async function sendContactUsWhatsApp(details: { firstName: string; lastNa
     console.error('❌ Error sending contact-us WhatsApp:', error);
   }
 }
+
+// Send order status/update notifications to admin and customer
+export async function sendOrderStatusUpdateWhatsApp(params: { orderId: string; customerName?: string; customerPhone?: string; orderStatus?: string; paymentStatus?: string; trackingInfo?: string; }): Promise<void> {
+  try {
+    const { orderId, customerName, customerPhone, orderStatus, paymentStatus, trackingInfo } = params;
+
+    // Notify admin
+    if (ADMIN_NUMBER) {
+      const adminMsg = `🔔 Order Update\nOrder: #${orderId}\nStatus: ${orderStatus || 'N/A'}\nPayment: ${paymentStatus || 'N/A'}${trackingInfo ? `\nTracking: ${trackingInfo}` : ''}`;
+      await sendWhatsAppText(ADMIN_NUMBER, adminMsg);
+    }
+
+    // Notify customer
+    if (customerPhone) {
+      const custMsgLines = [
+        `Hi ${customerName || 'Customer'},`,
+        `Your order #${orderId} status: ${orderStatus || 'Updated'}.`,
+      ];
+      if (paymentStatus) custMsgLines.push(`Payment: ${paymentStatus}.`);
+      if (trackingInfo) custMsgLines.push(`Tracking: ${trackingInfo}`);
+      custMsgLines.push(`Thank you for shopping with us.`);
+
+      const custMsg = custMsgLines.join('\n');
+      await sendWhatsAppText(customerPhone, custMsg);
+    }
+  } catch (error) {
+    console.error('❌ Error sending order status update WhatsApp:', error);
+  }
+}

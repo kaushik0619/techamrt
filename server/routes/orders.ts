@@ -8,8 +8,8 @@ import { Product } from '../models/Product';
 import { SalesEvent, SalesEventInsert } from '../models/SalesEvent';
 import { User } from '../models/User';
 import { authenticateToken, requireAdmin, AuthenticatedRequest } from '../middleware/auth';
-import { sendOrderConfirmationEmails } from '../services/emailService';
-import { sendOrderConfirmationWhatsApp } from '../services/whatsappService';
+import { sendOrderConfirmationEmails, sendOrderStatusUpdateEmails } from '../services/emailService';
+import { sendOrderConfirmationWhatsApp, sendOrderStatusUpdateWhatsApp } from '../services/whatsappService';
 
 const router = Router();
 
@@ -59,7 +59,7 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Respon
               }
             }
           ])
-          .toArray();
+          .toArray() as any as OrderWithItems['items'];
 
         return {
           ...order,
@@ -133,7 +133,7 @@ router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Res
           }
         }
       ])
-      .toArray();
+      .toArray() as any as OrderWithItems['items'];
 
     const orderWithItems: OrderWithItems = {
       ...order,
@@ -194,7 +194,8 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
 
     // Validate stock and calculate total
     let totalAmount = 0;
-    const orderItems: OrderItemInsert[] = [];
+    // temporary container for items before we attach order_id
+    const orderItems: Array<{ product_id: ObjectId; quantity: number; price: number }> = [];
 
     for (const cartItem of cartItems) {
       const product = cartItem.product;
@@ -215,21 +216,20 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
       });
     }
 
-    // Create order
-    const orderData: OrderInsert = {
+    // Create order document (fill required Order fields explicitly)
+    const orderDoc = {
       user_id: req.user._id,
       total_amount: totalAmount,
-      payment_status: 'pending',
-      payment_method: paymentMethod,
-      order_status: 'pending',
-      shipping_address: shippingAddress
-    };
-
-    const orderResult = await ordersCollection.insertOne({
-      ...orderData,
+      payment_status: 'pending' as const,
+      payment_method: paymentMethod as any,
+      payment_id: null,
+      order_status: 'pending' as const,
+      shipping_address: shippingAddress as any,
       created_at: new Date(),
       updated_at: new Date()
-    });
+    };
+
+    const orderResult = await ordersCollection.insertOne(orderDoc as any);
 
     if (!orderResult.insertedId) {
       throw new Error('Failed to create order');
@@ -238,8 +238,10 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
     // Create order items and update stock
     for (const item of orderItems) {
       await orderItemsCollection.insertOne({
-        ...item,
         order_id: orderResult.insertedId,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: item.price,
         created_at: new Date()
       });
 
@@ -297,7 +299,7 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
         },
         { $unwind: '$product' }
       ])
-      .toArray();
+      .toArray() as any[];
 
     // Prepare email data
     const emailItems = orderItemsWithProducts.map((item: any) => ({
@@ -311,22 +313,22 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
     try {
       const notificationPayload = {
         orderId: orderResult.insertedId.toString(),
-        customerName: shippingAddress.fullName || user?.username || 'Customer',
+        customerName: (shippingAddress as any).full_name || (shippingAddress as any).fullName || user?.username || 'Customer',
         customerEmail: user?.email || '',
-        customerPhone: shippingAddress.phone || '',
+        customerPhone: (shippingAddress as any).phone || '',
         orderDate: new Date(),
         items: emailItems,
         totalAmount: totalAmount,
         paymentMethod: paymentMethod || 'cod',
         paymentStatus: 'completed',
         shippingAddress: {
-          fullName: shippingAddress.fullName || shippingAddress.full_name || '',
-          addressLine1: shippingAddress.addressLine1 || shippingAddress.address_line1 || '',
-          addressLine2: shippingAddress.addressLine2 || shippingAddress.address_line2,
-          city: shippingAddress.city || '',
-          state: shippingAddress.state || '',
-          postalCode: shippingAddress.postalCode || shippingAddress.postal_code || '',
-          phone: shippingAddress.phone || ''
+          full_name: (shippingAddress as any).full_name || (shippingAddress as any).fullName || '',
+          address_line1: (shippingAddress as any).address_line1 || (shippingAddress as any).addressLine1 || '',
+          address_line2: (shippingAddress as any).address_line2 || (shippingAddress as any).addressLine2 || '',
+          city: (shippingAddress as any).city || '',
+          state: (shippingAddress as any).state || '',
+          postal_code: (shippingAddress as any).postal_code || (shippingAddress as any).postalCode || '',
+          phone: (shippingAddress as any).phone || ''
         }
       };
 
@@ -386,6 +388,40 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthenticatedReq
     }
 
     const updatedOrder = await ordersCollection.findOne({ _id: new ObjectId(id) });
+
+    // Trigger non-blocking notifications for order status/payment updates
+    try {
+      const trackingInfo = (req.body && req.body.tracking_info) || (req.body && req.body.trackingInfo) || undefined;
+
+      const notifPayload = {
+        orderId: id,
+        customerName: (updatedOrder as any)?.shipping_address?.full_name || (updatedOrder as any)?.shipping_address?.fullName || 'Customer',
+        customerEmail: (updatedOrder as any)?.customer_email || (updatedOrder as any)?.user_email || '',
+        customerPhone: (updatedOrder as any)?.shipping_address?.phone || '',
+        orderStatus: updateData.order_status,
+        paymentStatus: updateData.payment_status,
+        trackingInfo
+      };
+
+      const emailPromise = sendOrderStatusUpdateEmails(notifPayload as any);
+      const waPromise = sendOrderStatusUpdateWhatsApp({
+        orderId: notifPayload.orderId,
+        customerName: notifPayload.customerName,
+        customerPhone: notifPayload.customerPhone,
+        orderStatus: notifPayload.orderStatus,
+        paymentStatus: notifPayload.paymentStatus,
+        trackingInfo: notifPayload.trackingInfo
+      });
+
+      Promise.allSettled([emailPromise, waPromise]).then((results) => {
+        results.forEach((r, idx) => {
+          if (r.status === 'fulfilled') console.log(`✅ Order status notification ${idx} sent`);
+          else console.error(`❌ Order status notification ${idx} failed:`, r.reason);
+        });
+      });
+    } catch (notifyErr) {
+      console.error('❌ Error triggering order status notifications:', notifyErr);
+    }
 
     res.json(updatedOrder);
   } catch (error) {
