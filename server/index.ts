@@ -24,7 +24,8 @@ app.use(cors({
     'http://127.0.0.1:3000',
     'https://accessoriesbutcheaper.com',
     'https://www.accessoriesbutcheaper.com',
-    'https://accessoriesbutcheaper.onrender.com', // If frontend is on Render
+    'https://accessoriesbutcheaper.onrender.com',
+    'https://techamrt.vercel.app',
     process.env.FRONTEND_URL || ''
   ].filter(Boolean),
   credentials: true,
