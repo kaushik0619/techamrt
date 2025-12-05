@@ -26,8 +26,9 @@ function App() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | undefined>(undefined);
+  const [selectedSearch, setSelectedSearch] = useState<string | undefined>(undefined);
 
-  function handleNavigate(page: string, category?: string, subcategory?: string) {
+  function handleNavigate(page: string, category?: string, subcategory?: string, search?: string) {
     // Special routing for the new accessories page flow or spare parts
     if ((category === 'accessories' && subcategory?.toLowerCase() === 'phone') || category === 'spare_parts') {
       setCurrentPage('accessories');
@@ -37,6 +38,7 @@ function App() {
     
     setSelectedCategory(category);
     setSelectedSubcategory(subcategory);
+    setSelectedSearch(search);
     
     if (page !== 'product') {
       setSelectedProductId(null);
@@ -44,9 +46,9 @@ function App() {
     window.scrollTo(0, 0);
     // push a new history entry so browser Back/Forward works with app state
     try {
-      const state = { page, category, subcategory, productId: page === 'product' ? selectedProductId : null };
-      let url = '/';
-      if (page === 'shop') url = '/shop' + (category ? `/${category}` : '');
+    const state = { page, category, subcategory, search, productId: page === 'product' ? selectedProductId : null };
+    let url = '/';
+    if (page === 'shop') url = '/shop' + (category ? `/${category}` : '') + (search ? `?search=${encodeURIComponent(String(search))}` : '');
       else if (page === 'accessories') url = '/accessories' + (category ? `/${category}` : '');
       else if (page === 'product' && selectedProductId) url = `/product/${selectedProductId}`;
       else if (page === 'cart') url = '/cart';
@@ -103,6 +105,7 @@ function App() {
             onSelectProduct={handleSelectProduct}
             initialCategory={selectedCategory}
             initialSubcategory={selectedSubcategory}
+            initialSearch={selectedSearch}
           />
         );
       case 'accessories':

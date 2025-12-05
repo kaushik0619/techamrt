@@ -17,6 +17,7 @@ interface ProductListProps {
   onSelectProduct: (id: string) => void;
   initialCategory?: string;
   initialSubcategory?: string;
+  initialSearch?: string;
 }
 
 interface ProductsResponse {
@@ -238,7 +239,7 @@ const ProductCard = ({ product, onSelectProduct }: { product: Product; onSelectP
   </div>
 );
 
-export function ProductList({ onSelectProduct, initialCategory, initialSubcategory }: ProductListProps) {
+export function ProductList({ onSelectProduct, initialCategory, initialSubcategory, initialSearch }: ProductListProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -265,9 +266,10 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
     }));
   }, [initialCategory, initialSubcategory]);
 
+  // Load products when component mounts and whenever initial filters/search change
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [initialCategory, initialSubcategory, initialSearch]);
 
   // Close mobile drawer when switching to desktop width to avoid layout issues
   useEffect(() => {
@@ -290,7 +292,11 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
     try {
       setLoading(true);
       setError(null);
-      const response: ProductsResponse = await api.get('/api/products');
+      const params: any = {};
+      if (initialCategory) params.category = initialCategory;
+      if (initialSubcategory) params.subcategory = initialSubcategory;
+      if ((initialSearch || '').trim()) params.search = initialSearch;
+      const response: ProductsResponse = await api.get('/api/products', { params });
       console.log('Loaded products:', response.products);
       console.log('Product categories:', response.products.map(p => ({ name: p.name, category: p.category, subcategory: p.subcategory })));
       setProducts(response.products);

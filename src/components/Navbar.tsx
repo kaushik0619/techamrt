@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, Fragment } from 'react';
-import { Search, Heart, ShoppingBag, User, LogOut, LayoutDashboard, Package, ChevronDown, Menu, X } from 'lucide-react';
+import { Heart, ShoppingBag, User, LogOut, LayoutDashboard, Package, ChevronDown, Menu, X } from 'lucide-react';
+import SearchBar from './SearchBar';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../hooks/useCart';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -151,9 +152,8 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
-            <button className="p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors">
-              <Search className="w-5 h-5" />
-            </button>
+            {/* Search input - expands on small interaction */}
+            <SearchBar onSearch={(q) => onNavigate('shop', undefined, undefined, q)} />
             <button onClick={() => handleNavItemClick('wishlist')} className="p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors">
               <Heart className="w-5 h-5" />
             </button>
@@ -249,7 +249,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
             className="fixed inset-0 bg-[#000000] z-50 p-6 md:hidden overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-8">
-              <img src="/logo-light.png" alt="Logo" className="h-10" />
+              <img src="/logo.png" alt="ABC Accessories But Cheaper" className="h-10 md:h-12" />
               <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-neutral-400 hover:text-white">
                 <X className="w-7 h-7" />
               </button>

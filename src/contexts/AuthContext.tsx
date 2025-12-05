@@ -55,6 +55,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Store token in both keys for compatibility with api helper
     localStorage.setItem('authToken', data.token);
     localStorage.setItem('token', data.token);
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
     localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
   };
@@ -68,6 +71,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     localStorage.setItem('authToken', data.token);
     localStorage.setItem('token', data.token);
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
     localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
   };

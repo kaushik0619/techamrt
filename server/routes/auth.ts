@@ -53,8 +53,20 @@ router.post('/register', async (req: Request, res: Response) => {
       expiresIn: '1d',
     });
 
+    // Create a refresh token (longer lived)
+    const refreshToken = jwt.sign({ userId: createdUser._id, purpose: 'refresh' }, JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    // Store refresh token and expiry in DB
+    await usersCollection.updateOne(
+      { _id: createdUser._id },
+      { $set: { refreshToken, refreshTokenExpiry: new Date(Date.now() + 7 * 24 * 3600 * 1000) } }
+    );
+
     res.status(201).json({
       token,
+      refreshToken,
       user: {
         id: createdUser._id?.toString(),
         username: createdUser.username,
@@ -82,20 +94,31 @@ router.post('/login', async (req: Request, res: Response) => {
 
     const user = await usersCollection.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials.' });
+      return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials.' });
+      return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
     const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
       expiresIn: '1d',
     });
 
+    // Create refresh token and store it
+    const refreshToken = jwt.sign({ userId: user._id, purpose: 'refresh' }, JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    await usersCollection.updateOne(
+      { _id: user._id },
+      { $set: { refreshToken, refreshTokenExpiry: new Date(Date.now() + 7 * 24 * 3600 * 1000) } }
+    );
+
     res.status(200).json({
       token,
+      refreshToken,
       user: {
         id: user._id?.toString(),
         username: user.username,
@@ -106,6 +129,56 @@ router.post('/login', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error during login.' });
+  }
+});
+
+// POST /api/auth/refresh - exchange a refresh token for a new access token
+router.post('/refresh', async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ message: 'Refresh token required.' });
+    }
+
+    // Verify the refresh token signature
+    let decoded: any;
+    try {
+      decoded = jwt.verify(refreshToken, JWT_SECRET) as any;
+    } catch (err) {
+      return res.status(403).json({ message: 'Invalid or expired refresh token.' });
+    }
+
+    if (decoded.purpose !== 'refresh') {
+      return res.status(400).json({ message: 'Invalid refresh token.' });
+    }
+
+    const db = await connectToDatabase();
+    const usersCollection = db.collection<User>('users');
+
+    // Make sure the token matches what's stored for the user and hasn't expired
+    const user = await usersCollection.findOne({ _id: new ObjectId(decoded.userId) });
+    if (!user || !user.refreshToken || user.refreshToken !== refreshToken) {
+      return res.status(403).json({ message: 'Refresh token not recognized.' });
+    }
+
+    if (user.refreshTokenExpiry && new Date(user.refreshTokenExpiry) < new Date()) {
+      return res.status(403).json({ message: 'Refresh token expired.' });
+    }
+
+    // Issue new access token and rotate refresh token
+    const newToken = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
+    const newRefreshToken = jwt.sign({ userId: user._id, purpose: 'refresh' }, JWT_SECRET, { expiresIn: '7d' });
+
+    await usersCollection.updateOne(
+      { _id: user._id },
+      { $set: { refreshToken: newRefreshToken, refreshTokenExpiry: new Date(Date.now() + 7 * 24 * 3600 * 1000) } }
+    );
+
+    res.json({ token: newToken, refreshToken: newRefreshToken });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(500).json({ message: 'Server error during token refresh.' });
   }
 });
 // POST /api/auth/forgot-password

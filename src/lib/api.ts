@@ -88,6 +88,20 @@ function isTokenExpired(token: string): boolean {
 async function handleResponse<T>(response: Response, originalUrl: string, originalOptions: RequestInit): Promise<T> {
   // Handle 401 Unauthorized - token might be expired
   if (response.status === 401) {
+    // If the request was to an auth endpoint (login/register/forgot/reset/refresh),
+    // don't attempt to refresh tokens — return the server error so the UI can show it.
+    const authPaths = ['/api/auth/login', '/api/auth/register', '/api/auth/forgot-password', '/api/auth/reset-password', '/api/auth/refresh'];
+    const calledAuthEndpoint = authPaths.some(p => originalUrl.includes(p));
+    if (calledAuthEndpoint) {
+      let errorMessage = 'Unauthorized';
+      try {
+        const body = await response.json();
+        errorMessage = body.message || body.error || errorMessage;
+      } catch {
+        errorMessage = response.statusText || errorMessage;
+      }
+      throw new ApiError(401, errorMessage);
+    }
     // If we're already refreshing, wait for it
     if (isRefreshing) {
       return new Promise((resolve, reject) => {

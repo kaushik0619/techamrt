@@ -345,7 +345,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
       </section>
 
       {/* Apple Protective Case — Fullscreen Interactive Banner */}
-      <section className="relative h-screen w-full bg-cover bg-center" style={{ backgroundImage: `url('/Applecover.png')` }}>
+      <section className="relative h-screen w-full bg-cover bg-center" style={{ backgroundImage: `url('/applecover.png')` }}>
         <div className="absolute inset-0 bg-black/50" />
         <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-6">
           <motion.h2

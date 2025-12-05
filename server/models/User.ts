@@ -8,6 +8,9 @@ export interface User {
   role: 'customer' | 'admin';
   resetToken?: string;
   resetTokenExpiry?: Date;
+  refreshToken?: string;
+  // refreshTokenExpiry may come back as a Date or an ISO string from DB drivers
+  refreshTokenExpiry?: Date | string;
   createdAt: Date;
   updatedAt: Date;
 }
