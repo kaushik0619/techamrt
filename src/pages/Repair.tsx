@@ -103,6 +103,44 @@ const repairBrands: Brand[] = [
       { id: 'oneplus-nord-3', name: 'OnePlus Nord 3', imageUrl: 'https://images.pexels.com/photos/2769274/pexels-photo-2769274.jpeg?auto=compress&cs=tinysrgb&w=400' },
     ]
   },
+  {
+  id: 'poco',
+  name: 'POCO',
+  logoUrl: 'data:image/png;base64,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',
+  models: [
+    { id: 'poco-c40', name: 'POCO C40', imageUrl: '' },
+    { id: 'poco-m5s', name: 'POCO M5s', imageUrl: '' },
+    { id: 'poco-f5-pro', name: 'POCO F5 Pro', imageUrl: '' },
+    { id: 'poco-m2-reloaded', name: 'POCO M2 Reloaded', imageUrl: '' },
+    { id: 'poco-f1', name: 'POCO F1', imageUrl: '' },
+    { id: 'poco-x2', name: 'POCO X2', imageUrl: '' },
+
+    { id: 'poco-m2-pro', name: 'POCO M2 Pro', imageUrl: '' },
+    { id: 'poco-m2', name: 'POCO M2', imageUrl: '' },
+    { id: 'poco-c3', name: 'POCO C3', imageUrl: '' },
+    { id: 'poco-x3', name: 'POCO X3', imageUrl: '' },
+    { id: 'poco-m3', name: 'POCO M3', imageUrl: '' },
+    { id: 'poco-x3-pro', name: 'POCO X3 Pro', imageUrl: '' },
+
+    { id: 'poco-m3-pro-5g', name: 'POCO M3 Pro 5G', imageUrl: '' },
+    { id: 'poco-m4-pro', name: 'POCO M4 Pro', imageUrl: '' },
+    { id: 'poco-x4-pro-5g', name: 'POCO X4 Pro 5G', imageUrl: '' },
+    { id: 'poco-m4-5g', name: 'POCO M4 5G', imageUrl: '' },
+    { id: 'poco-f4-5g', name: 'POCO F4 5G', imageUrl: '' },
+    { id: 'poco-c50', name: 'POCO C50', imageUrl: '' },
+
+    { id: 'poco-c55', name: 'POCO C55', imageUrl: '' },
+    { id: 'poco-c51', name: 'POCO C51', imageUrl: '' },
+    { id: 'poco-f5-5g', name: 'POCO F5 5G', imageUrl: '' },
+    { id: 'poco-c65', name: 'POCO C65', imageUrl: '' },
+    { id: 'poco-x5-5g', name: 'POCO X5 5G', imageUrl: '' },
+    { id: 'poco-m6-5g', name: 'POCO M6 5G', imageUrl: '' },
+
+    { id: 'poco-f6-5g', name: 'POCO F6 5G', imageUrl: '' },
+    { id: 'poco-x7-5g', name: 'POCO X7 5G', imageUrl: '' }
+  ]
+}
+
 ];
 
 

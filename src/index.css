@@ -54,12 +54,17 @@
 }
 
 @layer components {
-  .btn-brand {
-    @apply text-white font-semibold rounded-lg;
-    background-image: linear-gradient(90deg, #F59B2E, #E33B57, #2AA7DF);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
-  }
+.btn-brand {
+  @apply text-gray-800 font-semibold rounded-lg bg-white;
+  border: 2px solid transparent;
+  background-image:
+    linear-gradient(white, white),
+    linear-gradient(90deg, #F59B2E, #E33B57, #2AA7DF);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+}
   .btn-brand:hover {
     transform: translateY(-2px);
     filter: brightness(1.02);

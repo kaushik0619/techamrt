@@ -377,7 +377,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onNavigate('repair')}
-             className="text-white px-6 py-3 rounded-lg shadow-lg bg-[linear-gradient(to_right,#F59B2E,#E33B57,#2AA7DF)]"
+             className="btn-brand px-6 py-3 shadow-lg bg-white text-black hover:bg-gray-100 transition"
             >
               Learn More
             </motion.button>

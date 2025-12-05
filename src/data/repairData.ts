@@ -59,4 +59,42 @@ export const repairBrands: Brand[] = [
         { id: 'oneplus-nord-3', name: 'OnePlus Nord 3', imageUrl: 'https://images.pexels.com/photos/2769274/pexels-photo-2769274.jpeg?auto=compress&cs=tinysrgb&w=400' },
     ]
   },
+  {
+  id: 'poco',
+  name: 'POCO',
+  logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/Poco_Logo.png',
+  models: [
+    { id: 'poco-c40', name: 'POCO C40', imageUrl: '' },
+    { id: 'poco-m5s', name: 'POCO M5s', imageUrl: '' },
+    { id: 'poco-f5-pro', name: 'POCO F5 Pro', imageUrl: '' },
+    { id: 'poco-m2-reloaded', name: 'POCO M2 Reloaded', imageUrl: '' },
+    { id: 'poco-f1', name: 'POCO F1', imageUrl: '' },
+    { id: 'poco-x2', name: 'POCO X2', imageUrl: '' },
+
+    { id: 'poco-m2-pro', name: 'POCO M2 Pro', imageUrl: '' },
+    { id: 'poco-m2', name: 'POCO M2', imageUrl: '' },
+    { id: 'poco-c3', name: 'POCO C3', imageUrl: '' },
+    { id: 'poco-x3', name: 'POCO X3', imageUrl: '' },
+    { id: 'poco-m3', name: 'POCO M3', imageUrl: '' },
+    { id: 'poco-x3-pro', name: 'POCO X3 Pro', imageUrl: '' },
+
+    { id: 'poco-m3-pro-5g', name: 'POCO M3 Pro 5G', imageUrl: '' },
+    { id: 'poco-m4-pro', name: 'POCO M4 Pro', imageUrl: '' },
+    { id: 'poco-x4-pro-5g', name: 'POCO X4 Pro 5G', imageUrl: '' },
+    { id: 'poco-m4-5g', name: 'POCO M4 5G', imageUrl: '' },
+    { id: 'poco-f4-5g', name: 'POCO F4 5G', imageUrl: '' },
+    { id: 'poco-c50', name: 'POCO C50', imageUrl: '' },
+
+    { id: 'poco-c55', name: 'POCO C55', imageUrl: '' },
+    { id: 'poco-c51', name: 'POCO C51', imageUrl: '' },
+    { id: 'poco-f5-5g', name: 'POCO F5 5G', imageUrl: '' },
+    { id: 'poco-c65', name: 'POCO C65', imageUrl: '' },
+    { id: 'poco-x5-5g', name: 'POCO X5 5G', imageUrl: '' },
+    { id: 'poco-m6-5g', name: 'POCO M6 5G', imageUrl: '' },
+
+    { id: 'poco-f6-5g', name: 'POCO F6 5G', imageUrl: '' },
+    { id: 'poco-x7-5g', name: 'POCO X7 5G', imageUrl: '' }
+  ]
+}
+
 ];
