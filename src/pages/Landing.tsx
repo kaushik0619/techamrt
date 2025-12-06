@@ -11,7 +11,7 @@ interface Product {
 }
 
 interface LandingProps {
-  onNavigate: (page: string, category?: string, subcategory?: string) => void;
+  onNavigate: (page: string, category?: string, subcategory?: string, search?: string, brand?: string) => void;
   onSelectProduct: (id: string) => void;
 }
 
@@ -21,16 +21,16 @@ const slides = [
     subtitle: 'Grab it now before it is too late.',
     image: '/featured.png',
     buttonText: 'Explore Deals',
-    buttonLink: 'deals',
+    // navigate to shop -> home -> 'Explore Deals'
+    buttonAction: { page: 'shop', category: 'home', subcategory: 'Explore Deals' },
   },
   {
     title: 'Power up your Z Series',
     subtitle: 'Find cases and accessories that match your lifestyle.',
     image: '/samsungfold.png',
     buttonText: 'Shop Covers',
-    buttonLink: 'shop',
+    buttonAction: { page: 'shop', category: 'accessories', subcategory: 'Phone', brand: 'Samsung' },
   },
-  
 ];
 
 const categories = [
@@ -295,7 +295,18 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            onClick={() => onNavigate(slides[slideIndex].buttonLink)}
+            onClick={() => {
+              const action: any = (slides as any)[slideIndex].buttonAction;
+              if (action && action.page === 'shop') {
+                onNavigate(action.page, action.category, action.subcategory, action.search, action.brand);
+              } else if (action && action.page) {
+                onNavigate(action.page);
+              } else {
+                // fallback for legacy buttonLink
+                const legacy: any = (slides as any)[slideIndex].buttonLink;
+                if (legacy) onNavigate(legacy);
+              }
+            }}
             className="btn-brand px-8 py-3 hover:opacity-90 transition-transform transform hover:scale-105"
           >
             {slides[slideIndex].buttonText}
@@ -333,7 +344,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-10">Shop by Category</h2>
           <div className="flex overflow-x-auto gap-6 pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:gap-8 scrollbar-hide">
             {categories.map((category) => (
-              <div key={category.name} className="relative rounded-xl overflow-hidden group cursor-pointer shadow-sm w-48 sm:w-64 md:w-72 flex-shrink-0 lg:w-auto" onClick={() => onNavigate('shop')}>
+              <div key={category.name} className="relative rounded-xl overflow-hidden group cursor-pointer shadow-sm w-48 sm:w-64 md:w-72 flex-shrink-0 lg:w-auto" onClick={() => onNavigate('shop', 'home', category.name)}>
                 <img src={category.image} alt={category.name} className="w-full h-48 sm:h-64 object-cover transition-transform duration-300 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                   <h3 className="text-white text-xl font-bold">{category.name}</h3>

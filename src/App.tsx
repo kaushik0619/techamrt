@@ -27,8 +27,9 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | undefined>(undefined);
   const [selectedSearch, setSelectedSearch] = useState<string | undefined>(undefined);
+  const [selectedBrand, setSelectedBrand] = useState<string | undefined>(undefined);
 
-  function handleNavigate(page: string, category?: string, subcategory?: string, search?: string) {
+  function handleNavigate(page: string, category?: string, subcategory?: string, search?: string, brand?: string) {
     // Special routing for the new accessories page flow or spare parts
     if ((category === 'accessories' && subcategory?.toLowerCase() === 'phone') || category === 'spare_parts') {
       setCurrentPage('accessories');
@@ -39,6 +40,7 @@ function App() {
     setSelectedCategory(category);
     setSelectedSubcategory(subcategory);
     setSelectedSearch(search);
+    setSelectedBrand(brand);
     
     if (page !== 'product') {
       setSelectedProductId(null);
@@ -46,10 +48,18 @@ function App() {
     window.scrollTo(0, 0);
     // push a new history entry so browser Back/Forward works with app state
     try {
-    const state = { page, category, subcategory, search, productId: page === 'product' ? selectedProductId : null };
-    let url = '/';
-    if (page === 'shop') url = '/shop' + (category ? `/${category}` : '') + (search ? `?search=${encodeURIComponent(String(search))}` : '');
-      else if (page === 'accessories') url = '/accessories' + (category ? `/${category}` : '');
+      const state = { page, category, subcategory, search, brand, productId: page === 'product' ? selectedProductId : null };
+      let url = '/';
+      if (page === 'shop') {
+        url = '/shop';
+        if (category) url += `/${category}`;
+        if (subcategory) url += `/${encodeURIComponent(String(subcategory))}`;
+        const qp = new URLSearchParams();
+        if (search) qp.set('search', String(search));
+        if (brand) qp.set('brand', String(brand));
+        const q = qp.toString();
+        if (q) url += `?${q}`;
+      } else if (page === 'accessories') url = '/accessories' + (category ? `/${category}` : '');
       else if (page === 'product' && selectedProductId) url = `/product/${selectedProductId}`;
       else if (page === 'cart') url = '/cart';
       else if (page === 'checkout') url = '/checkout';
@@ -106,6 +116,7 @@ function App() {
             initialCategory={selectedCategory}
             initialSubcategory={selectedSubcategory}
             initialSearch={selectedSearch}
+            initialBrand={selectedBrand}
           />
         );
       case 'accessories':
@@ -147,6 +158,8 @@ function App() {
         setSelectedCategory(s.category);
         setSelectedSubcategory(s.subcategory);
         setSelectedProductId(s.productId ?? null);
+        setSelectedSearch(s.search ?? undefined);
+        setSelectedBrand(s.brand ?? undefined);
       } else {
         // push current initial page so Back doesn't leave app immediately
         window.history.replaceState({ page: currentPage }, '', window.location.pathname || '/');
@@ -159,6 +172,8 @@ function App() {
           setSelectedCategory(st.category);
           setSelectedSubcategory(st.subcategory);
           setSelectedProductId(st.productId ?? null);
+          setSelectedSearch(st.search ?? undefined);
+          setSelectedBrand(st.brand ?? undefined);
           window.scrollTo(0, 0);
         } else {
           // If no state, fall back to landing page
@@ -166,6 +181,8 @@ function App() {
           setSelectedProductId(null);
           setSelectedCategory(undefined);
           setSelectedSubcategory(undefined);
+          setSelectedSearch(undefined);
+          setSelectedBrand(undefined);
         }
       };
 

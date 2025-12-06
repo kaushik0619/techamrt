@@ -147,9 +147,8 @@ const repairBrands: Brand[] = [
 const features = [
   { icon: Wrench, title: 'Expert Technicians', description: 'Our technicians are certified and trained to handle any device issue.' },
   { icon: Smartphone, title: 'Genuine Parts', description: 'We use only high-quality, genuine parts for all our repairs.' },
-  { icon: ShieldCheck, title: '6-Month Warranty', description: 'All our repairs come with a 6-month warranty for your peace of mind.' },
-  { icon: Clock, title: 'Quick Service', description: 'Get your device repaired in as little as 30 minutes.' },
-];
+  { icon: ShieldCheck, title: '3-Month Warranty', description: 'All our repairs come with a 3-month warranty for your peace of mind.' },
+ ];
 
 type RepairStep = 'selection' | 'details' | 'confirmation';
 
@@ -400,7 +399,7 @@ export function Repair() {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Why Choose Us?</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}

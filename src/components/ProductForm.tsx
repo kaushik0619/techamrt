@@ -25,6 +25,8 @@ const categories = [
   { value: 'spare_parts', label: 'Spare Parts', subcategories: ['Phone', 'iPad', 'AirPods', 'Laptop'] },
   { value: 'toys_games', label: 'Toys & Games', subcategories: [] },
   { value: 'car_accessories', label: 'Car Accessories', subcategories: [] },
+  // New Home category with subcategories shown on Landing cards
+  { value: 'home', label: 'Home', subcategories: ['Electronics', 'Car Accessories', 'Gadgets', 'Special Offers', 'Explore Deals'] },
 ];
 
 export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
@@ -157,6 +159,12 @@ export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
       // For spare_parts, keep category as "Spare Parts"
       if (formData.category === 'spare_parts') {
         submitCategory = 'Spare Parts';
+      }
+
+      // For home category, keep category as 'home' and store the chosen subcategory
+      if (formData.category === 'home') {
+        submitCategory = 'home';
+        submitSubcategory = formData.subcategory || submitSubcategory;
       }
 
       await api.post('/api/products', {
