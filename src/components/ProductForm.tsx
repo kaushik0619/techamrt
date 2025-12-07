@@ -26,7 +26,7 @@ const categories = [
   { value: 'toys_games', label: 'Toys & Games', subcategories: [] },
   { value: 'car_accessories', label: 'Car Accessories', subcategories: [] },
   // New Home category with subcategories shown on Landing cards
-  { value: 'home', label: 'Home', subcategories: ['Electronics', 'Car Accessories', 'Gadgets', 'Special Offers', 'Explore Deals'] },
+  { value: 'home', label: 'Home', subcategories: ['Electronics', 'Car Accessories', 'Gadgets', 'Special Offers', 'Explore Deals', 'Best Sellers', 'AirPods Collection'] },
 ];
 
 export function ProductForm({ onClose, onSuccess }: ProductFormProps) {

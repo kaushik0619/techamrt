@@ -11,6 +11,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'default-secret';
 
 // POST /api/auth/register
 router.post('/register', async (req: Request, res: Response) => {
+  const registerStart = Date.now();
   try {
     const { username, email, password } = req.body;
 
@@ -18,15 +19,24 @@ router.post('/register', async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Please provide all required fields.' });
     }
 
+    console.log(`[REGISTER] Starting registration for email: ${email}`);
+    const dbStart = Date.now();
     const db = await connectToDatabase();
+    console.log(`[REGISTER] DB connection took: ${Date.now() - dbStart}ms`);
+
     const usersCollection = db.collection<User>('users');
 
+    const findStart = Date.now();
     const existingUser = await usersCollection.findOne({ email });
+    console.log(`[REGISTER] Find existing user took: ${Date.now() - findStart}ms`);
+    
     if (existingUser) {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
+    const bcryptStart = Date.now();
     const password_hash = await bcrypt.hash(password, 10);
+    console.log(`[REGISTER] Bcrypt hash took: ${Date.now() - bcryptStart}ms`);
 
     const newUser: User = {
       username,
@@ -37,7 +47,9 @@ router.post('/register', async (req: Request, res: Response) => {
       updatedAt: new Date(),
     };
 
+    const insertStart = Date.now();
     const result = await usersCollection.insertOne(newUser);
+    console.log(`[REGISTER] Insert user took: ${Date.now() - insertStart}ms`);
 
     if (!result.insertedId) {
         throw new Error('Failed to insert user');
@@ -49,6 +61,7 @@ router.post('/register', async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Error retrieving created user' });
     }
 
+    const jwtStart = Date.now();
     const token = jwt.sign({ userId: createdUser._id, role: createdUser.role }, JWT_SECRET, {
       expiresIn: '1d',
     });
@@ -63,7 +76,9 @@ router.post('/register', async (req: Request, res: Response) => {
       { _id: createdUser._id },
       { $set: { refreshToken, refreshTokenExpiry: new Date(Date.now() + 7 * 24 * 3600 * 1000) } }
     );
+    console.log(`[REGISTER] JWT generation and token storage took: ${Date.now() - jwtStart}ms`);
 
+    console.log(`[REGISTER] Total registration time: ${Date.now() - registerStart}ms`);
     res.status(201).json({
       token,
       refreshToken,
@@ -75,13 +90,14 @@ router.post('/register', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error(`[REGISTER] Registration error (${Date.now() - registerStart}ms):`, error);
     res.status(500).json({ message: 'Server error during registration.' });
   }
 });
 
 // POST /api/auth/login
 router.post('/login', async (req: Request, res: Response) => {
+  const loginStart = Date.now();
   try {
     const { email, password } = req.body;
 
@@ -89,19 +105,30 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Please provide email and password.' });
     }
 
+    console.log(`[LOGIN] Starting login for email: ${email}`);
+    const dbStart = Date.now();
     const db = await connectToDatabase();
+    console.log(`[LOGIN] DB connection took: ${Date.now() - dbStart}ms`);
+
     const usersCollection = db.collection<User>('users');
 
+    const findStart = Date.now();
     const user = await usersCollection.findOne({ email });
+    console.log(`[LOGIN] Find user took: ${Date.now() - findStart}ms`);
+    
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
+    const bcryptStart = Date.now();
     const isMatch = await bcrypt.compare(password, user.password_hash);
+    console.log(`[LOGIN] Bcrypt compare took: ${Date.now() - bcryptStart}ms`);
+    
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
+    const jwtStart = Date.now();
     const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
       expiresIn: '1d',
     });
@@ -111,11 +138,15 @@ router.post('/login', async (req: Request, res: Response) => {
       expiresIn: '7d',
     });
 
+    const updateStart = Date.now();
     await usersCollection.updateOne(
       { _id: user._id },
       { $set: { refreshToken, refreshTokenExpiry: new Date(Date.now() + 7 * 24 * 3600 * 1000) } }
     );
+    console.log(`[LOGIN] Update user took: ${Date.now() - updateStart}ms`);
+    console.log(`[LOGIN] JWT generation took: ${Date.now() - jwtStart}ms`);
 
+    console.log(`[LOGIN] Total login time: ${Date.now() - loginStart}ms`);
     res.status(200).json({
       token,
       refreshToken,
@@ -127,7 +158,7 @@ router.post('/login', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error(`[LOGIN] Login error (${Date.now() - loginStart}ms):`, error);
     res.status(500).json({ message: 'Server error during login.' });
   }
 });

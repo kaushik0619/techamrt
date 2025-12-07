@@ -9,6 +9,7 @@ import ordersRoutes from './routes/orders';
 import adminRoutes from './routes/admin';
 import miscRoutes from './routes/misc';
 import whatsappWebhookRoutes from './routes/whatsappWebhook';
+import paymentRoutes from './routes/payment';
 
 dotenv.config();
 
@@ -55,6 +56,7 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/misc', miscRoutes);
 app.use('/webhook/whatsapp', whatsappWebhookRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -102,6 +104,9 @@ connectToDatabase()
       console.log(`✅ Server is running on http://localhost:${PORT}`);
       console.log(`✅ API available at http://localhost:${PORT}/api`);
       console.log(`✅ CORS enabled for multiple origins including localhost:5173`);
+      try {
+        console.log('Razorpay key id (server env):', process.env.RAZORPAY_KEY_ID || '[not set]');
+      } catch (err) {}
     });
   })
   .catch((error) => {

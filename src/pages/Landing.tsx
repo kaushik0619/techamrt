@@ -97,7 +97,7 @@ const variants = {
 };
 
 export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
-  const [featuredProducts] = useState<Product[]>(mockFeaturedProducts);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(mockFeaturedProducts);
   const [airpodProducts, setAirpodProducts] = useState<Product[]>([]);
   const airpodRef = useRef<HTMLDivElement | null>(null);
   const featuredRef = useRef<HTMLDivElement | null>(null);
@@ -116,38 +116,59 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
     return () => clearInterval(timer);
   }, [page]);
 
-  // Fetch AirPod products (both direct AirPods category and accessories->airpods)
+  // Fetch AirPod Collection and Best Sellers products from home subcategories
   useEffect(() => {
     let mounted = true;
 
-    async function loadAirpods() {
+    async function loadProducts() {
       try {
-        const [resp1, resp2] = await Promise.all([
-          api.get('/api/products', { params: { category: 'AirPods', limit: 50 } }),
-          api.get('/api/products', { params: { category: 'accessories', subcategory: 'airpods', limit: 50 } }),
+        // Fetch Best Sellers from home subcategory to display as featured products
+        const bestSellersResp = await api.get('/api/products', { 
+          params: { category: 'home', subcategory: 'Best Sellers', limit: 50 } 
+        });
+        const bestSellersList: Product[] = bestSellersResp?.products || [];
+        const bestSellersResult = bestSellersList.map((p: any) => ({ 
+          id: p._id?.toString() || p.id, 
+          name: p.name, 
+          price: p.price ?? 0, 
+          images: p.images && p.images.length ? p.images : [p.image || ''] 
+        }));
+        if (mounted) setFeaturedProducts(bestSellersResult.length ? bestSellersResult : mockFeaturedProducts);
+
+        // Fetch AirPods Collection from home subcategory and AirPods category
+        const [airpodsHomeResp, airpodsCategoryResp] = await Promise.all([
+          api.get('/api/products', { 
+            params: { category: 'home', subcategory: 'AirPods Collection', limit: 50 } 
+          }),
+          api.get('/api/products', { 
+            params: { category: 'airpods', limit: 50 } 
+          })
         ]);
-
-        const list1: Product[] = resp1?.products || [];
-        const list2: Product[] = resp2?.products || [];
-
-        // Merge and dedupe by id
-        const merged = [...list1, ...list2];
-        const dedup = merged.reduce<Record<string, any>>((acc, p: any) => {
-          const key = p._id?.toString() || p.id || `${p.name}-${Math.random()}`;
-          acc[key] = p;
-          return acc;
-        }, {} as Record<string, any>);
-
-        const result = Object.values(dedup).map((p: any) => ({ id: p._id?.toString() || p.id, name: p.name, price: p.price ?? 0, images: p.images && p.images.length ? p.images : [p.image || ''] }));
-
-        if (mounted) setAirpodProducts(result.length ? result : mockFeaturedProducts);
+        
+        const airpodsHomeList: any[] = airpodsHomeResp?.products || [];
+        const airpodsCategoryList: any[] = airpodsCategoryResp?.products || [];
+        
+        // Combine both sources and remove duplicates by ID
+        const allAirpods = [...airpodsHomeList, ...airpodsCategoryList];
+        const uniqueAirpods = Array.from(new Map(allAirpods.map(p => [p._id || p.id, p])).values());
+        
+        const airpodsResult = uniqueAirpods.map((p: any) => ({ 
+          id: p._id?.toString() || p.id, 
+          name: p.name, 
+          price: p.price ?? 0, 
+          images: p.images && p.images.length ? p.images : [p.image || ''] 
+        }));
+        if (mounted) setAirpodProducts(airpodsResult.length ? airpodsResult : mockFeaturedProducts);
       } catch (error) {
-        console.error('Error loading airpod products', error);
-        if (mounted) setAirpodProducts(mockFeaturedProducts);
+        console.error('Error loading products', error);
+        if (mounted) {
+          setFeaturedProducts(mockFeaturedProducts);
+          setAirpodProducts(mockFeaturedProducts);
+        }
       }
     }
 
-    loadAirpods();
+    loadProducts();
 
     return () => { mounted = false; };
   }, []);
@@ -472,7 +493,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900">AirPod Cases Collection</h2>
             <div>
-              <button onClick={() => onNavigate('shop', 'accessories', 'airpods')}   className="font-semibold flex items-center gap-2 justify-center mx-auto 
+              <button onClick={() => onNavigate('shop', 'home', 'AirPods Collection')} className="font-semibold flex items-center gap-2 justify-center mx-auto 
              bg-[linear-gradient(to_right,#F59B2E,#E33B57,#2AA7DF)] 
              bg-clip-text text-transparent hover:opacity-90 transition">View Collection</button>
             </div>
