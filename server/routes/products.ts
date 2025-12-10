@@ -60,32 +60,53 @@ router.get('/brands', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { category, subcategory, brand, minPrice, maxPrice, search, page = 1, limit = 20 } = req.query;
-    
+
     const db = await connectToDatabase();
     const productsCollection = db.collection<Product>('products');
-    
-    // Build filter object
-    const filter: any = {};
-    
+
+    // Build filter using combinable clauses. This lets us match category/subcategory
+    // against primary `category`, the `categories` array, and `categoriesDetails` entries.
+    const andClauses: any[] = [];
+
     if (category) {
-      // Use case-insensitive regex matching for category
-      filter.category = { $regex: String(category), $options: 'i' };
+      const regex = { $regex: String(category), $options: 'i' };
+      andClauses.push({ $or: [
+        { category: regex },
+        { categories: regex },
+        { 'categoriesDetails.category': regex },
+        { 'categoriesDetails.subcategories': regex }
+      ]});
     }
-    if (subcategory) filter.subcategory = subcategory as string;
-    if (brand) filter.brand = brand as string;
-    
+
+    if (subcategory) {
+      const sregex = { $regex: String(subcategory), $options: 'i' };
+      andClauses.push({ $or: [
+        { subcategory: sregex },
+        { 'categoriesDetails.subcategories': sregex },
+        { category: sregex },
+        { categories: sregex }
+      ]});
+    }
+
+    if (brand) {
+      andClauses.push({ brand: String(brand) });
+    }
+
     if (minPrice || maxPrice) {
-      filter.price = {};
-      if (minPrice) filter.price.$gte = Number(minPrice);
-      if (maxPrice) filter.price.$lte = Number(maxPrice);
+      const priceClause: any = {};
+      if (minPrice) priceClause.$gte = Number(minPrice);
+      if (maxPrice) priceClause.$lte = Number(maxPrice);
+      andClauses.push({ price: priceClause });
     }
-    
+
     if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
+      andClauses.push({ $or: [
+        { name: { $regex: String(search), $options: 'i' } },
+        { description: { $regex: String(search), $options: 'i' } }
+      ]});
     }
+
+    const filter: any = andClauses.length > 0 ? { $and: andClauses } : {};
     
     const skip = (Number(page) - 1) * Number(limit);
     
@@ -145,15 +166,30 @@ router.post('/', authenticateToken, requireAdmin, async (req: AuthenticatedReque
     const productData: ProductInsert = req.body;
     
     // Validate required fields
-    if (!productData.name || !productData.description || !productData.category || productData.price === undefined) {
+    if (!productData.name || !productData.description || !productData.category || (productData.price === undefined && productData.originalPrice === undefined)) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
     
     const db = await connectToDatabase();
     const productsCollection = db.collection<Product>('products');
     
+    // Determine pricing fields and effective price
+    const originalPrice = productData.originalPrice ?? productData.price ?? 0;
+    let salePrice = productData.salePrice;
+    const discountPercentage = productData.discountPercentage;
+
+    if (salePrice === undefined && discountPercentage !== undefined) {
+      salePrice = Math.max(0, +(originalPrice * (1 - Number(discountPercentage) / 100)).toFixed(2));
+    }
+
+    const effectivePrice = salePrice !== undefined ? salePrice : originalPrice;
+
     const newProduct: Product = {
       ...productData,
+      price: effectivePrice,
+      originalPrice,
+      salePrice,
+      discountPercentage,
       stock: productData.stock || 0,
       images: productData.images || [],
       specs: productData.specs || null,
@@ -190,6 +226,17 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthenticatedReq
     const productsCollection = db.collection<Product>('products');
     
     updateData.updatedAt = new Date();
+
+    // If pricing fields are included in update, recalculate effective price
+    if (updateData.originalPrice !== undefined || updateData.salePrice !== undefined || updateData.discountPercentage !== undefined) {
+      const original = updateData.originalPrice ?? (await productsCollection.findOne({ _id: new ObjectId(id) }))?.originalPrice ?? (await productsCollection.findOne({ _id: new ObjectId(id) }))?.price ?? 0;
+      let sale = updateData.salePrice;
+      const disc = updateData.discountPercentage;
+      if (sale === undefined && disc !== undefined) {
+        sale = Math.max(0, +(original * (1 - Number(disc) / 100)).toFixed(2));
+      }
+      updateData.price = sale !== undefined ? sale : (updateData.originalPrice ?? original);
+    }
     
     const result = await productsCollection.updateOne(
       { _id: new ObjectId(id) },

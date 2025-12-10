@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ShoppingCart, Star, Truck, Shield, RefreshCw, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Star, Minus, Plus } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
@@ -11,6 +11,9 @@ interface Product {
   description: string;
   category: string;
   price: number;
+  originalPrice?: number;
+  salePrice?: number;
+  discountPercentage?: number;
   stock: number;
   images: string[];
   specs: Record<string, any> | null;
@@ -176,10 +179,17 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
               </div>
 
               <div className="text-5xl font-extrabold text-gray-900 mb-6">
-                ₹{product.price.toLocaleString()}
+                {product.salePrice !== undefined && product.salePrice < (product.originalPrice ?? product.price) ? (
+                  <div>
+                    <div className="text-2xl text-gray-500 line-through">₹{(product.originalPrice ?? product.price).toLocaleString()}</div>
+                    <div className="text-4xl font-extrabold text-rose-600">₹{product.salePrice.toLocaleString()}</div>
+                  </div>
+                ) : (
+                  <>₹{(product.originalPrice ?? product.price).toLocaleString()}</>
+                )}
               </div>
 
-              <p className="text-lg text-gray-600 leading-relaxed mb-8">
+              <p className="text-lg text-gray-600 leading-relaxed mb-8 whitespace-pre-wrap" style={{ textAlign: 'justify' }}>
                 {product.description}
               </p>
             </motion.div>
@@ -226,22 +236,6 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
                 <p className="text-error font-medium text-center">Out of Stock</p>
               </motion.div>
             )}
-
-            <motion.div className="grid grid-cols-3 gap-4 pt-4" variants={itemVariants}>
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
-                <Truck className="w-8 h-8 mx-auto mb-2 text-secondary" />
-                <p className="text-sm font-medium text-gray-900">Free Shipping</p>
-              </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
-                <Shield className="w-8 h-8 mx-auto mb-2 text-success" />
-                <p className="text-sm font-medium text-gray-900">2 Year Warranty</p>
-              </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
-                <RefreshCw className="w-8 h-8 mx-auto mb-2 text-warning" />
-                <p className="text-sm font-medium text-gray-900">30 Day Returns</p>
-              </div>
-            </motion.div>
-
             {product.specs && Object.keys(product.specs).length > 0 && (
               <motion.div className="bg-gray-50 border border-gray-200 rounded-xl p-6" variants={itemVariants}>
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Specifications</h2>

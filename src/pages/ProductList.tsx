@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, ChevronRight, ChevronLeft, X } from 'lucide-react';
+import { ChevronRight, ChevronLeft, X } from 'lucide-react';
 import { api } from '../lib/api';
 
 interface Product {
@@ -10,7 +10,12 @@ interface Product {
   images: string[];
   category: string;
   subcategory?: string;
+  categories?: string[];
+  categoriesDetails?: Array<{ category: string; subcategories?: string[] }>;
   stock: number;
+  originalPrice?: number;
+  salePrice?: number;
+  discountPercentage?: number;
 }
 
 interface ProductListProps {
@@ -234,7 +239,14 @@ const ProductCard = ({ product, onSelectProduct }: { product: Product; onSelectP
       </div>
       <h3 className="text-base font-semibold text-gray-900 truncate group-hover:text-primary">{product.name}</h3>
       <div className="flex items-center justify-center mt-4">
-        <p className="text-lg font-bold text-black">₹{product.price.toFixed(2)}</p>
+        {product.salePrice !== undefined && product.salePrice < (product.originalPrice ?? product.price) ? (
+          <div>
+            <div className="text-sm text-gray-500 line-through">₹{(product.originalPrice ?? product.price).toFixed(2)}</div>
+            <div className="text-lg font-bold text-rose-600">₹{product.salePrice.toFixed(2)}</div>
+          </div>
+        ) : (
+          <p className="text-lg font-bold text-black">₹{(product.originalPrice ?? product.price).toFixed(2)}</p>
+        )}
       </div>
     </div>
   </div>
@@ -315,39 +327,54 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
     console.log('Starting with products:', filtered.length);
     // Combined category + subcategory filtering (case-insensitive, tolerant)
     if (filters.categories.length > 0 || filters.subcategories.length > 0) {
+      const normalize = (s: any) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
       filtered = filtered.filter(product => {
-        const prodCat = (product.category || '').toLowerCase();
-        const prodSub = (product.subcategory || '').toLowerCase();
+        // gather all tokens representing product categories/subcategories
+        const tokens: string[] = [];
+        if (product.category) tokens.push(normalize(product.category));
+        if (product.subcategory) tokens.push(normalize(product.subcategory));
+        if (Array.isArray(product.categories)) product.categories.forEach((c: string) => tokens.push(normalize(c)));
+        if (Array.isArray(product.categoriesDetails)) {
+          product.categoriesDetails.forEach((cd: any) => {
+            if (cd?.category) tokens.push(normalize(cd.category));
+            if (Array.isArray(cd?.subcategories)) cd.subcategories.forEach((s: string) => tokens.push(normalize(s)));
+          });
+        }
 
-        // Check category matches (if any category filters provided)
+        // also include name/description tokens for loose subcategory matching
+        const nameDesc = ((product.name || '') + ' ' + (product.description || '')).toLowerCase();
+
+        const matchesToken = (filterToken: string) => {
+          if (!filterToken) return false;
+          const ft = normalize(filterToken);
+          // partial match: any product token contains filter token or vice versa
+          for (const t of tokens) {
+            if (!t) continue;
+            if (t.includes(ft) || ft.includes(t)) return true;
+          }
+          // fallback: check name/description contains the filter token
+          if (nameDesc.includes(filterToken.toLowerCase())) return true;
+          return false;
+        };
+
         const categoryMatches = filters.categories.length === 0
           ? true
-          : filters.categories.some(filterCat => {
-              const f = (filterCat || '').toLowerCase();
-              return prodCat === f || prodCat.includes(f) || f.includes(prodCat);
-            })
-            // Also allow matching category by subcategory terms: e.g. if user selected subcategory 'airpods',
-            // include products whose category contains 'airpod' even if categories filter is 'accessories'.
-            || (filters.subcategories.length > 0 && filters.subcategories.some(sub => prodCat.includes((sub || '').toLowerCase())));
+          : filters.categories.some(c => matchesToken(c));
 
-        // Check subcategory matches (if any subcategory filters provided)
         const subcategoryMatches = filters.subcategories.length === 0
           ? true
-          : filters.subcategories.some(sub => {
-              const s = (sub || '').toLowerCase();
-              if (prodSub) {
-                if (prodSub === s || prodSub.includes(s) || s.includes(prodSub)) return true;
-              }
-              if (prodCat) {
-                if (prodCat === s || prodCat.includes(s) || s.includes(prodCat)) return true;
-              }
-              const nameMatch = product.name?.toLowerCase().includes(s);
-              const descMatch = product.description?.toLowerCase().includes(s);
-              return Boolean(nameMatch || descMatch);
-            });
+          : filters.subcategories.some(s => matchesToken(s));
 
-        const matches = categoryMatches && subcategoryMatches;
-        console.log(`Product "${product.name}" category="${product.category}" subcategory="${product.subcategory}" matches filters:`, matches);
+        // If both category and subcategory filters are active, treat as a union
+        // (show products that match either the selected category OR the selected subcategory).
+        // If only one group is active, require that group's match.
+        let matches: boolean;
+        if (filters.categories.length > 0 && filters.subcategories.length > 0) {
+          matches = categoryMatches || subcategoryMatches;
+        } else {
+          matches = categoryMatches && subcategoryMatches;
+        }
+        console.log(`Product "${product.name}" tokens=${JSON.stringify(tokens)} matches:`, matches);
         return matches;
       });
       console.log('After combined filters:', filtered.length);
@@ -461,7 +488,7 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
                   <button className="p-2 rounded-md hover:bg-gray-100">
                     <ChevronLeft className="w-5 h-5 text-gray-600" />
                   </button>
-                  <button className="w-8 h-8 rounded-md btn-brand text-white text-sm font-medium">
+                  <button className="w-8 h-8 rounded-md text-white text-sm font-medium" style={{ background: 'linear-gradient(90deg,#F59B2E,#E33B57,#2AA7DF)' }}>
                     1
                   </button>
                   <button className="w-8 h-8 rounded-md hover:bg-gray-100 text-sm font-medium text-gray-600">

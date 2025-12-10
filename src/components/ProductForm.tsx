@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Upload, Plus, Trash2, ChevronDown } from 'lucide-react';
+import { X, Plus, Trash2, ChevronDown } from 'lucide-react';
 import { api } from '../lib/api';
 
 interface ProductFormProps {
   onClose: () => void;
   onSuccess: () => void;
+  // optional: pass product data & id for edit mode
+  initialProduct?: any;
+  productId?: string;
 }
 
 interface ProductFormData {
@@ -14,7 +17,15 @@ interface ProductFormData {
   subcategory: string;
   brand?: string;
   accessoryType?: string;
+  // keep price for legacy; prefer originalPrice/salePrice for discounts
   price: number;
+  originalPrice?: number;
+  salePrice?: number;
+  discountPercentage?: number;
+  // Allow assigning to multiple categories (additional to primary `category`)
+  categories?: string[];
+  // optional server shape mirror - stored as array on server, managed locally as map
+  categoriesDetails?: Array<{ category: string; subcategories?: string[] }>;
   stock: number;
   images: string[];
   specs: { [key: string]: string };
@@ -29,17 +40,56 @@ const categories = [
   { value: 'home', label: 'Home', subcategories: ['Electronics', 'Car Accessories', 'Gadgets', 'Special Offers', 'Explore Deals', 'Best Sellers', 'AirPods Collection'] },
 ];
 
-export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
+export function ProductForm({ onClose, onSuccess, initialProduct, productId }: ProductFormProps) {
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
     category: '',
     subcategory: '',
     price: 0,
+    originalPrice: undefined,
+    salePrice: undefined,
+    discountPercentage: undefined,
+    categories: [],
     stock: 0,
     images: [],
     specs: {},
   });
+
+  // populate when editing
+  useEffect(() => {
+    if (!initialProduct) return;
+    try {
+      const p: any = initialProduct;
+      setFormData(prev => ({
+        ...prev,
+        name: p.name || prev.name,
+        description: p.description || prev.description,
+        category: p.category || prev.category,
+        subcategory: p.subcategory || prev.subcategory,
+        brand: p.brand || prev.brand,
+        price: p.price ?? prev.price,
+        originalPrice: p.originalPrice ?? p.price ?? prev.originalPrice,
+        salePrice: p.salePrice ?? undefined,
+        discountPercentage: p.discountPercentage ?? undefined,
+        categories: (p.categories && Array.isArray(p.categories) ? p.categories : (p.categories ? [p.categories] : [])) || prev.categories,
+        stock: p.stock ?? prev.stock,
+        images: p.images || prev.images,
+        specs: p.specs || prev.specs,
+      }));
+      // populate per-category subcategory selections if provided
+      if (p.categoriesDetails && Array.isArray(p.categoriesDetails)) {
+        const map: Record<string,string[]> = {};
+        p.categoriesDetails.forEach((cd: any) => {
+          if (cd && cd.category) map[cd.category] = Array.isArray(cd.subcategories) ? cd.subcategories : [];
+        });
+        setCategoriesDetailsMap(map);
+      }
+    } catch (e) {
+      console.warn('Failed to populate product form for edit', e);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialProduct]);
   
   const [imageInput, setImageInput] = useState('');
   const [specKey, setSpecKey] = useState('');
@@ -49,6 +99,7 @@ export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [brandOpen, setBrandOpen] = useState(false);
   const brandRef = useRef<HTMLDivElement | null>(null);
+  const [categoriesDetailsMap, setCategoriesDetailsMap] = useState<Record<string, string[]>>({});
 
   const selectedCategory = categories.find(cat => cat.value === formData.category);
 
@@ -167,17 +218,44 @@ export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
         submitSubcategory = formData.subcategory || submitSubcategory;
       }
 
-      await api.post('/api/products', {
+      const payload: any = {
         name: formData.name,
         description: formData.description,
         category: submitCategory || formData.category,
         subcategory: submitSubcategory || undefined,
         brand: formData.brand || undefined,
-        price: formData.price,
+        // Pricing fields: send both original and sale if available
+        originalPrice: formData.originalPrice ?? formData.price,
+        salePrice: formData.salePrice,
+        discountPercentage: formData.discountPercentage,
+        // legacy price field: effective price for compatibility
+        price: formData.salePrice ?? formData.originalPrice ?? formData.price,
         stock: formData.stock,
         images: formData.images,
         specs: Object.keys(formData.specs).length > 0 ? formData.specs : null,
-      });
+      };
+      // include categories array (unique, include primary category)
+      const chosenPrimary = submitCategory || formData.category;
+      const extras = (formData.categories || []).filter(Boolean);
+      const categoriesSet = Array.from(new Set([...(chosenPrimary ? [chosenPrimary] : []), ...extras]));
+      if (categoriesSet.length > 0) payload.categories = categoriesSet;
+      // include per-category subcategory selections in payload if any
+      try {
+        const cdEntries = Object.entries(categoriesDetailsMap || {}).map(([category, subcategories]) => ({
+          category,
+          subcategories: Array.isArray(subcategories) && subcategories.length > 0 ? subcategories : undefined,
+        }));
+        if (cdEntries.length > 0) payload.categoriesDetails = cdEntries;
+      } catch (e) {
+        // ignore map errors
+      }
+
+      if (productId || (initialProduct && initialProduct._id)) {
+        const idToUse = productId || initialProduct._id;
+        await api.put(`/api/products/${idToUse}`, payload);
+      } else {
+        await api.post('/api/products', payload);
+      }
       
       onSuccess();
       onClose();
@@ -228,7 +306,7 @@ export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Add New Product</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{initialProduct || productId ? 'Edit Product' : 'Add New Product'}</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -391,21 +469,77 @@ export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
                 </div>
               )}
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price (₹) *
+                  Original Price (₹) *
                 </label>
                 <input
                   type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                  value={formData.originalPrice ?? formData.price}
+                  onChange={(e) => {
+                    const original = parseFloat(e.target.value) || 0;
+                    setFormData(prev => {
+                      const disc = prev.discountPercentage;
+                      let sale = prev.salePrice;
+                      if (disc !== undefined && !Number.isNaN(Number(disc))) {
+                        sale = Math.max(0, +(original * (1 - Number(disc) / 100)).toFixed(2));
+                      }
+                      return { ...prev, originalPrice: original, price: sale ?? original, salePrice: sale };
+                    });
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0.00"
                   min="0"
                   step="0.01"
                   required
                 />
+
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Discount %</label>
+                    <input
+                      type="number"
+                      value={formData.discountPercentage ?? ''}
+                      onChange={(e) => {
+                        const disc = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                        setFormData(prev => {
+                          const original = prev.originalPrice ?? prev.price ?? 0;
+                          let sale = prev.salePrice;
+                          if (disc !== undefined && !Number.isNaN(Number(disc))) {
+                            sale = Math.max(0, +(original * (1 - Number(disc) / 100)).toFixed(2));
+                          }
+                          return { ...prev, discountPercentage: disc, salePrice: sale, price: sale ?? original };
+                        });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Sale Price (₹)</label>
+                    <input
+                      type="number"
+                      value={formData.salePrice ?? ''}
+                      onChange={(e) => {
+                        const sale = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                        setFormData(prev => {
+                          const original = prev.originalPrice ?? prev.price ?? 0;
+                          let disc = prev.discountPercentage;
+                          if (sale !== undefined && original > 0) {
+                            disc = +((1 - sale / original) * 100).toFixed(2);
+                          }
+                          return { ...prev, salePrice: sale, discountPercentage: disc, price: sale ?? original };
+                        });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -467,6 +601,73 @@ export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
                 ))}
               </div>
             )}
+
+            {/* Additional Categories: allow assigning product to multiple categories and per-category subcategory selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Additional Categories (optional)</label>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap gap-2">
+                  {categories.map(cat => (
+                    <div key={cat.value} className="inline-block">
+                      <label className="inline-flex items-center gap-2 px-3 py-1 border border-gray-200 rounded-full cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={(formData.categories || []).includes(cat.value)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setFormData(prev => {
+                              const current = new Set(prev.categories || []);
+                              if (checked) current.add(cat.value); else current.delete(cat.value);
+                              return { ...prev, categories: Array.from(current) };
+                            });
+                            if (checked) {
+                              setCategoriesDetailsMap(prev => ({ ...prev, [cat.value]: prev[cat.value] || [] }));
+                            } else {
+                              setCategoriesDetailsMap(prev => {
+                                const copy = { ...prev };
+                                delete copy[cat.value];
+                                return copy;
+                              });
+                            }
+                          }}
+                          className="form-checkbox h-4 w-4"
+                        />
+                        <span className="text-sm">{cat.label}</span>
+                      </label>
+
+                      {/* show per-category subcategory selectors when this additional category is selected */}
+                      {(formData.categories || []).includes(cat.value) && cat.subcategories && cat.subcategories.length > 0 && (
+                        <div className="mt-2 ml-4 bg-gray-50 p-2 rounded-lg">
+                          <div className="text-xs text-gray-600 mb-1">Select subcategories for {cat.label} (optional)</div>
+                          <div className="flex flex-wrap gap-2">
+                            {cat.subcategories.map(sub => (
+                              <label key={sub} className="inline-flex items-center gap-2 px-2 py-1 border border-gray-200 rounded-full cursor-pointer select-none text-sm">
+                                <input
+                                  type="checkbox"
+                                  checked={(categoriesDetailsMap[cat.value] || []).includes(sub)}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    setCategoriesDetailsMap(prev => {
+                                      const copy = { ...prev };
+                                      const current = new Set(copy[cat.value] || []);
+                                      if (checked) current.add(sub); else current.delete(sub);
+                                      copy[cat.value] = Array.from(current);
+                                      return copy;
+                                    });
+                                  }}
+                                  className="form-checkbox h-4 w-4"
+                                />
+                                <span>{sub}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Specifications */}
@@ -533,7 +734,7 @@ export function ProductForm({ onClose, onSuccess }: ProductFormProps) {
               disabled={loading}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating...' : 'Create Product'}
+              {loading ? (initialProduct || productId ? 'Saving...' : 'Creating...') : (initialProduct || productId ? 'Save Changes' : 'Create Product')}
             </button>
           </div>
         </form>

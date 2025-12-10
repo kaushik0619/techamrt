@@ -8,6 +8,9 @@ interface Product {
   name: string;
   price: number;
   images: string[];
+  originalPrice?: number;
+  salePrice?: number;
+  discountPercentage?: number;
 }
 
 interface LandingProps {
@@ -101,6 +104,10 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
   const [airpodProducts, setAirpodProducts] = useState<Product[]>([]);
   const airpodRef = useRef<HTMLDivElement | null>(null);
   const featuredRef = useRef<HTMLDivElement | null>(null);
+  const featuredScrollbarRef = useRef<HTMLDivElement | null>(null);
+  const featuredThumbRef = useRef<HTMLDivElement | null>(null);
+  const airpodScrollbarRef = useRef<HTMLDivElement | null>(null);
+  const airpodThumbRef = useRef<HTMLDivElement | null>(null);
   const [[page, direction], setPage] = useState([0, 0]);
 
   const paginate = (newDirection: number) => {
@@ -130,7 +137,11 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
         const bestSellersResult = bestSellersList.map((p: any) => ({ 
           id: p._id?.toString() || p.id, 
           name: p.name, 
+          // preserve backward-compatible `price` while exposing fields
           price: p.price ?? 0, 
+          originalPrice: p.originalPrice ?? p.price ?? 0,
+          salePrice: p.salePrice ?? undefined,
+          discountPercentage: p.discountPercentage ?? undefined,
           images: p.images && p.images.length ? p.images : [p.image || ''] 
         }));
         if (mounted) setFeaturedProducts(bestSellersResult.length ? bestSellersResult : mockFeaturedProducts);
@@ -155,7 +166,10 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
         const airpodsResult = uniqueAirpods.map((p: any) => ({ 
           id: p._id?.toString() || p.id, 
           name: p.name, 
-          price: p.price ?? 0, 
+          price: p.price ?? 0,
+          originalPrice: p.originalPrice ?? p.price ?? 0,
+          salePrice: p.salePrice ?? undefined,
+          discountPercentage: p.discountPercentage ?? undefined,
           images: p.images && p.images.length ? p.images : [p.image || ''] 
         }));
         if (mounted) setAirpodProducts(airpodsResult.length ? airpodsResult : mockFeaturedProducts);
@@ -173,10 +187,13 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
     return () => { mounted = false; };
   }, []);
 
-  // Auto-scroll implementation with drag support
+  // Auto-scroll implementation with drag support (scrollLeft-based)
+  // Uses container.scrollLeft instead of transform so drag feels natural
+  // and click events on items are preserved.
   function useAutoScroll(containerRef: React.RefObject<HTMLDivElement>, speed = 40) {
     const rafRef = useRef<number | null>(null);
     const isPointerDown = useRef(false);
+    const isDragging = useRef(false);
     const startX = useRef(0);
     const startScroll = useRef(0);
     const paused = useRef(false);
@@ -185,30 +202,26 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
       const container = containerRef.current;
       if (!container) return;
 
-      const el = container; // local strong reference for closures
-      const track = el.querySelector('.marquee-track') as HTMLElement | null;
+      const track = container.querySelector('.marquee-track') as HTMLElement | null;
       if (!track) return;
       const trackEl = track;
 
+      const half = trackEl.scrollWidth / 2 || 0;
+      const c = container as HTMLDivElement;
       let lastTime = performance.now();
 
       function step(now: number) {
-        if (!trackEl) return;
         const dt = now - lastTime;
         lastTime = now;
 
-        if (!isPointerDown.current && !paused.current) {
-          const distance = (Math.abs(speed) * dt) / 1000; // px per ms
-          const direction = speed > 0 ? 1 : -1;
-          el.scrollLeft = el.scrollLeft + direction * distance;
+        if (!isPointerDown.current && !paused.current && half > 0 && Math.abs(speed) > 0) {
+          const delta = (Math.sign(speed) * Math.abs(speed) * dt) / 1000; // px per frame
+          // scrollLeft increases to the right; invert sign so positive speed moves left visually
+          c.scrollLeft += delta;
 
-          const half = trackEl.scrollWidth / 2;
-          if (el.scrollLeft >= half) {
-            el.scrollLeft = el.scrollLeft - half;
-          }
-          if (el.scrollLeft < 0) {
-            el.scrollLeft = el.scrollLeft + half;
-          }
+          // loop when passing half width
+          if (c.scrollLeft >= half) c.scrollLeft -= half;
+          if (c.scrollLeft < 0) c.scrollLeft += half;
         }
 
         rafRef.current = requestAnimationFrame(step);
@@ -216,54 +229,174 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
 
       rafRef.current = requestAnimationFrame(step);
 
-      // Pointer handlers for drag
+      // only enable pointer drag on touch/coarse pointer devices
+      const isCoarsePointer = typeof window !== 'undefined' && (window as any).matchMedia && (window as any).matchMedia('(pointer: coarse)').matches;
+
       function onPointerDown(e: PointerEvent) {
         isPointerDown.current = true;
         paused.current = true;
-        try { el.setPointerCapture?.(e.pointerId); } catch {}
+        try { container?.setPointerCapture?.(e.pointerId); } catch {}
         startX.current = e.clientX;
-        startScroll.current = el.scrollLeft;
+        startScroll.current = c.scrollLeft;
       }
 
       function onPointerMove(e: PointerEvent) {
         if (!isPointerDown.current) return;
         const dx = e.clientX - startX.current;
-        // drag left-to-right should move products left => increase scroll by dx
-        el.scrollLeft = startScroll.current + dx;
-        const half = trackEl.scrollWidth / 2;
-        if (el.scrollLeft >= half) el.scrollLeft -= half;
-        if (el.scrollLeft < 0) el.scrollLeft += half;
+        // mark as dragging when user moves more than a few pixels
+        if (Math.abs(dx) > 6) isDragging.current = true;
+        // invert dx so dragging left moves content left
+        c.scrollLeft = startScroll.current - dx;
+        // loop wrapping
+        if (half > 0) {
+          if (c.scrollLeft >= half) c.scrollLeft -= half;
+          if (c.scrollLeft < 0) c.scrollLeft += half;
+        }
       }
 
       function onPointerUp(e: PointerEvent) {
         isPointerDown.current = false;
         paused.current = false;
-        try { el.releasePointerCapture?.(e.pointerId); } catch {}
+        try { container?.releasePointerCapture?.(e.pointerId); } catch {}
+        // clear dragging flag on next tick so click events (which fire after pointerup) can check it
+        setTimeout(() => { isDragging.current = false; }, 0);
+      }
+
+      // suppress clicks coming immediately after a drag
+      function onClickCapture(e: MouseEvent) {
+        if (isDragging.current) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
       }
 
       function onEnter() { paused.current = true; }
       function onLeave() { if (!isPointerDown.current) paused.current = false; }
 
-      el.addEventListener('pointerdown', onPointerDown);
-      window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('pointerup', onPointerUp);
-      el.addEventListener('mouseenter', onEnter);
-      el.addEventListener('mouseleave', onLeave);
+      if (isCoarsePointer) {
+        container.addEventListener('pointerdown', onPointerDown);
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+        container.addEventListener('mouseenter', onEnter);
+        container.addEventListener('mouseleave', onLeave);
+        container.addEventListener('click', onClickCapture, true);
+      }
+      container.addEventListener('click', onClickCapture, true);
 
       return () => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        el.removeEventListener('pointerdown', onPointerDown);
-        window.removeEventListener('pointermove', onPointerMove);
-        window.removeEventListener('pointerup', onPointerUp);
-        el.removeEventListener('mouseenter', onEnter);
-        el.removeEventListener('mouseleave', onLeave);
+        if (isCoarsePointer) {
+          container.removeEventListener('pointerdown', onPointerDown);
+          window.removeEventListener('pointermove', onPointerMove);
+          window.removeEventListener('pointerup', onPointerUp);
+          container.removeEventListener('mouseenter', onEnter);
+          container.removeEventListener('mouseleave', onLeave);
+          container.removeEventListener('click', onClickCapture, true);
+        }
       };
     }, [containerRef, speed]);
   }
 
+  // Custom scrollbar that mirrors container scrollLeft
+  function useCustomScrollbar(containerRef: React.RefObject<HTMLDivElement>, scrollbarRef: React.RefObject<HTMLDivElement>, thumbRef: React.RefObject<HTMLDivElement>) {
+    useEffect(() => {
+      const container = containerRef.current;
+      const scrollbar = scrollbarRef.current;
+      const thumb = thumbRef.current;
+      if (!container || !scrollbar || !thumb) return;
+
+      function update() {
+        const c = container as HTMLDivElement;
+        const s = scrollbar as HTMLDivElement;
+        const t = thumb as HTMLDivElement;
+        const visible = c.clientWidth;
+        const total = c.scrollWidth; // use actual scrollWidth so thumb matches native scrollbar
+          // ensure the custom scrollbar width matches the container's visible width
+          try {
+            const parentRect = (s.parentElement as HTMLElement).getBoundingClientRect();
+            const containerRect = c.getBoundingClientRect();
+            const leftOffset = containerRect.left - parentRect.left;
+            s.style.width = `${Math.max(0, containerRect.width)}px`;
+            s.style.transform = `translateX(${leftOffset}px)`;
+          } catch (err) {
+            // ignore positioning errors
+          }
+          const ratio = Math.min(1, visible / total || 1);
+          const thumbWidth = Math.max(24, Math.floor(s.clientWidth * ratio));
+        t.style.width = `${thumbWidth}px`;
+        const maxScroll = Math.max(0, total - visible);
+        const scrollLeft = Math.max(0, Math.min(c.scrollLeft, maxScroll));
+        const maxThumbLeft = Math.max(0, s.clientWidth - thumbWidth);
+        const left = maxScroll > 0 ? (scrollLeft / maxScroll) * maxThumbLeft : 0;
+        t.style.transform = `translateX(${left}px)`;
+      }
+
+      update();
+      container.addEventListener('scroll', update);
+      window.addEventListener('resize', update);
+
+      // Make the thumb draggable
+      let dragging = false;
+      let startPointerX = 0;
+      let startLeft = 0;
+
+      function onThumbPointerDown(e: PointerEvent) {
+        const tEl = thumb as HTMLDivElement;
+        const sEl = scrollbar as HTMLDivElement;
+        try { tEl.setPointerCapture?.(e.pointerId); } catch {}
+        dragging = true;
+        startPointerX = e.clientX;
+        const tRect = tEl.getBoundingClientRect();
+        const sRect = sEl.getBoundingClientRect();
+        startLeft = Math.max(0, tRect.left - sRect.left);
+        document.body.style.userSelect = 'none';
+      }
+
+      function onWindowPointerMove(e: PointerEvent) {
+        if (!dragging) return;
+        const sEl = scrollbar as HTMLDivElement;
+        const tEl = thumb as HTMLDivElement;
+        const delta = e.clientX - startPointerX;
+        const newLeft = Math.max(0, Math.min(Math.max(0, sEl.clientWidth - tEl.offsetWidth), startLeft + delta));
+        tEl.style.transform = `translateX(${newLeft}px)`;
+        // map thumb pos to container.scrollLeft
+        const ratio = (sEl.clientWidth - tEl.offsetWidth) > 0 ? newLeft / (sEl.clientWidth - tEl.offsetWidth) : 0;
+        const totalNow = (container as HTMLDivElement).scrollWidth;
+        const visibleNow = (container as HTMLDivElement).clientWidth;
+        const maxScrollNow = Math.max(0, totalNow - visibleNow);
+        (container as HTMLDivElement).scrollLeft = ratio * maxScrollNow;
+      }
+
+      function onWindowPointerUp(e: PointerEvent) {
+        if (!dragging) return;
+        dragging = false;
+        const tEl = thumb as HTMLDivElement;
+        try { tEl.releasePointerCapture?.((e && (e as any).pointerId) || 0); } catch {}
+        document.body.style.userSelect = '';
+      }
+
+      thumb.addEventListener('pointerdown', onThumbPointerDown);
+      window.addEventListener('pointermove', onWindowPointerMove);
+      window.addEventListener('pointerup', onWindowPointerUp);
+
+      return () => {
+        container.removeEventListener('scroll', update);
+        window.removeEventListener('resize', update);
+        thumb.removeEventListener('pointerdown', onThumbPointerDown);
+        window.removeEventListener('pointermove', onWindowPointerMove);
+        window.removeEventListener('pointerup', onWindowPointerUp);
+      };
+    }, [containerRef, scrollbarRef, thumbRef]);
+  }
+
   // Start auto-scroll for both sections
-  useAutoScroll(airpodRef, 40); // px/sec
-  useAutoScroll(featuredRef, -30); // negative -> scroll in opposite direction
+  // Disabled automatic scrolling per request — only enable drag-to-scroll
+  useAutoScroll(airpodRef, 0); // 0 => no auto advance, drag only
+  useAutoScroll(featuredRef, 0); // disabled auto advance
+
+  // attach custom scrollbar mirrors
+  useCustomScrollbar(featuredRef, featuredScrollbarRef, featuredThumbRef);
+  useCustomScrollbar(airpodRef, airpodScrollbarRef, airpodThumbRef);
 
   return (
     <div className="bg-white">
@@ -421,8 +554,8 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-10">Best Seller</h2>
-          <div className="marquee" ref={featuredRef}>
-            <div className="marquee-track" style={{ minWidth: 'max-content' }}>
+          <div className="marquee" ref={featuredRef} style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <div className="marquee-track" style={{ display: 'flex', minWidth: 'max-content' }}>
               {[...featuredProducts, ...featuredProducts].map((product, idx) => (
                 <div
                   key={`feat-${product.id}-${idx}`}
@@ -438,11 +571,23 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
                   </div>
                   <div className="p-4 text-center">
                     <h3 className="text-base font-semibold text-gray-900 truncate">{product.name}</h3>
-                    <p className="text-lg font-bold text-black mt-2">₹{product.price.toFixed(2)}</p>
+                    {product.salePrice !== undefined && product.salePrice < (product.originalPrice ?? product.price) ? (
+                      <div className="mt-2">
+                        <div className="text-sm text-gray-500 line-through">₹{(product.originalPrice ?? product.price).toFixed(2)}</div>
+                        <div className="text-lg font-bold text-rose-600">₹{product.salePrice.toFixed(2)}</div>
+                        <div className="text-xs text-green-600">Save {Math.round((( (product.originalPrice ?? product.price) - product.salePrice) / (product.originalPrice ?? product.price)) * 100)}%</div>
+                      </div>
+                    ) : (
+                      <p className="text-lg font-bold text-black mt-2">₹{(product.originalPrice ?? product.price).toFixed(2)}</p>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+          {/* Custom scrollbar for featured */}
+          <div ref={featuredScrollbarRef} className="mt-3 mx-6 rounded-full" style={{ height: 10, background: '#f1f3f5', position: 'relative' }}>
+            <div ref={featuredThumbRef} style={{ height: 10, borderRadius: 9999, background: 'linear-gradient(90deg,#F59B2E,#E33B57,#2AA7DF)', transform: 'translateX(0)', transition: 'transform 120ms linear' }} />
           </div>
           <div className="text-center mt-12">
             <button
@@ -491,7 +636,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">AirPod Cases Collection</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Earbuds Cases Collection</h2>
             <div>
               <button onClick={() => onNavigate('shop', 'home', 'AirPods Collection')} className="font-semibold flex items-center gap-2 justify-center mx-auto 
              bg-[linear-gradient(to_right,#F59B2E,#E33B57,#2AA7DF)] 
@@ -499,8 +644,8 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
             </div>
           </div>
 
-          <div className="marquee" ref={airpodRef}>
-            <div className="marquee-track" style={{ minWidth: 'max-content' }}>
+          <div className="marquee" ref={airpodRef} style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <div className="marquee-track" style={{ display: 'flex', minWidth: 'max-content' }}>
               {[...airpodProducts, ...airpodProducts].map((product, idx) => (
                 <div
                   key={`airpod-${product.id}-${idx}`}
@@ -512,11 +657,22 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
                   </div>
                   <div className="p-4 text-center">
                     <h3 className="text-sm md:text-base font-semibold text-gray-900 truncate">{product.name}</h3>
-                    <p className="text-md font-bold text-black mt-2">₹{product.price.toFixed(2)}</p>
+                    {product.salePrice !== undefined && product.salePrice < (product.originalPrice ?? product.price) ? (
+                      <div className="mt-2">
+                        <div className="text-sm text-gray-500 line-through">₹{(product.originalPrice ?? product.price).toFixed(2)}</div>
+                        <div className="text-md font-bold text-rose-600">₹{product.salePrice.toFixed(2)}</div>
+                      </div>
+                    ) : (
+                      <p className="text-md font-bold text-black mt-2">₹{(product.originalPrice ?? product.price).toFixed(2)}</p>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+          {/* Custom scrollbar for airpods */}
+          <div ref={airpodScrollbarRef} className="mt-3 mx-6 rounded-full" style={{ height: 10, background: '#f1f3f5', position: 'relative' }}>
+            <div ref={airpodThumbRef} style={{ height: 10, borderRadius: 9999, background: 'linear-gradient(90deg,#F59B2E,#E33B57,#2AA7DF)', transform: 'translateX(0)', transition: 'transform 120ms linear' }} />
           </div>
         </div>
       </section>

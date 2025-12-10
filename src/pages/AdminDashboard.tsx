@@ -46,6 +46,7 @@ export function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -89,6 +90,11 @@ export function AdminDashboard() {
         console.error('Error deleting product:', err);
       }
     }
+  }
+
+  function handleEditProduct(p: any) {
+    setEditingProduct(p);
+    setShowProductForm(true);
   }
 
   if (loading) {
@@ -290,13 +296,29 @@ export function AdminDashboard() {
                     <td className="p-4 text-slate-600 hidden sm:table-cell">₹{product.price.toLocaleString()}</td>
                     <td className="p-4 text-slate-600 hidden sm:table-cell">{product.stock}</td>
                     <td className="p-4">
-                      <button 
-                        onClick={() => handleDeleteProduct(product._id)}
-                        className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
-                        aria-label="Delete product"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEditProduct(product)}
+                          className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                          aria-label="Edit product"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleEditProduct(product)}
+                          className="px-3 py-1 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                          aria-label="Edit product images"
+                        >
+                          Images
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteProduct(product._id)}
+                          className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
+                          aria-label="Delete product"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -312,8 +334,10 @@ export function AdminDashboard() {
       {/* Product Form Modal */}
       {showProductForm && (
         <ProductForm
-          onClose={() => setShowProductForm(false)}
+          onClose={() => { setShowProductForm(false); setEditingProduct(null); }}
           onSuccess={handleProductCreated}
+          initialProduct={editingProduct || undefined}
+          productId={editingProduct?._id}
         />
       )}
     </div>

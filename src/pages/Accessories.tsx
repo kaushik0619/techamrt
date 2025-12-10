@@ -12,6 +12,9 @@ interface Product {
   category: string;
   subcategory?: string;
   brand?: string;
+  originalPrice?: number;
+  salePrice?: number;
+  discountPercentage?: number;
 }
 
 interface AccessoriesProps {
@@ -50,7 +53,14 @@ const ProductCard = ({ product, onSelectProduct }: { product: Product; onSelectP
     <div className="p-4 text-center">
       <h3 className="text-base font-semibold text-neutral-900 truncate group-hover:text-primary-DEFAULT">{product.name}</h3>
       <div className="flex items-center justify-center mt-2">
-        <p className="text-lg font-bold text-black">₹{product.price.toFixed(2)}</p>
+        {product.salePrice !== undefined && product.salePrice < (product.originalPrice ?? product.price) ? (
+          <div>
+            <div className="text-sm text-gray-500 line-through">₹{(product.originalPrice ?? product.price).toFixed(2)}</div>
+            <div className="text-lg font-bold text-rose-600">₹{product.salePrice.toFixed(2)}</div>
+          </div>
+        ) : (
+          <p className="text-lg font-bold text-black">₹{(product.originalPrice ?? product.price).toFixed(2)}</p>
+        )}
       </div>
     </div>
   </motion.div>
