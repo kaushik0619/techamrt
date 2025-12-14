@@ -554,9 +554,9 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-10">Best Seller</h2>
-          <div className="marquee" ref={featuredRef} style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <div className="marquee hide-scrollbar" ref={featuredRef} style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <div className="marquee-track" style={{ display: 'flex', minWidth: 'max-content' }}>
-              {[...featuredProducts, ...featuredProducts].map((product, idx) => (
+              {featuredProducts.map((product, idx) => (
                 <div
                   key={`feat-${product.id}-${idx}`}
                   onClick={() => onSelectProduct(product.id)}
@@ -586,8 +586,8 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
             </div>
           </div>
           {/* Custom scrollbar for featured */}
-          <div ref={featuredScrollbarRef} className="mt-3 mx-6 rounded-full" style={{ height: 10, background: '#f1f3f5', position: 'relative' }}>
-            <div ref={featuredThumbRef} style={{ height: 10, borderRadius: 9999, background: 'linear-gradient(90deg,#F59B2E,#E33B57,#2AA7DF)', transform: 'translateX(0)', transition: 'transform 120ms linear' }} />
+          <div ref={featuredScrollbarRef} className="mt-3 mx-6 rounded-full" style={{ height: 10, background: '#f1f3f5', position: 'relative', display: 'none' }}>
+            <div ref={featuredThumbRef} style={{ height: 10, borderRadius: 9999, background: '#9ca3af', transform: 'translateX(0)', transition: 'transform 120ms linear' }} />
           </div>
           <div className="text-center mt-12">
             <button
@@ -644,9 +644,9 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
             </div>
           </div>
 
-          <div className="marquee" ref={airpodRef} style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <div className="marquee hide-scrollbar" ref={airpodRef} style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <div className="marquee-track" style={{ display: 'flex', minWidth: 'max-content' }}>
-              {[...airpodProducts, ...airpodProducts].map((product, idx) => (
+              {airpodProducts.map((product, idx) => (
                 <div
                   key={`airpod-${product.id}-${idx}`}
                   onClick={() => onSelectProduct(product.id)}
@@ -671,8 +671,8 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
             </div>
           </div>
           {/* Custom scrollbar for airpods */}
-          <div ref={airpodScrollbarRef} className="mt-3 mx-6 rounded-full" style={{ height: 10, background: '#f1f3f5', position: 'relative' }}>
-            <div ref={airpodThumbRef} style={{ height: 10, borderRadius: 9999, background: 'linear-gradient(90deg,#F59B2E,#E33B57,#2AA7DF)', transform: 'translateX(0)', transition: 'transform 120ms linear' }} />
+          <div ref={airpodScrollbarRef} className="mt-3 mx-6 rounded-full" style={{ height: 10, background: '#f1f3f5', position: 'relative', display: 'none' }}>
+            <div ref={airpodThumbRef} style={{ height: 10, borderRadius: 9999, background: '#9ca3af', transform: 'translateX(0)', transition: 'transform 120ms linear' }} />
           </div>
         </div>
       </section>

@@ -11,6 +11,7 @@ export interface User {
   refreshToken?: string;
   // refreshTokenExpiry may come back as a Date or an ISO string from DB drivers
   refreshTokenExpiry?: Date | string;
+  wishlist: string[]; // Array of product IDs
   createdAt: Date;
   updatedAt: Date;
 }

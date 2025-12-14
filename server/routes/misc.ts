@@ -5,6 +5,9 @@ import {
   sendRepairRequestWhatsApp,
   sendContactUsWhatsApp
 } from '../services/whatsappService';
+import { connectToDatabase } from '../db';
+import { ObjectId } from 'mongodb';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -64,6 +67,62 @@ router.post('/contact', async (req, res) => {
     return res.json({ message: 'Message sent' });
   } catch (error) {
     console.error('Error in /contact', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// POST /api/misc/wishlist - Add/Remove product from wishlist
+router.post('/wishlist', authenticateToken, async (req, res) => {
+  try {
+    const { productId } = req.body;
+    if (!productId) return res.status(400).json({ message: 'Product ID is required' });
+
+    const user = (req as any).user;
+    const userId = user._id;
+    const db = await connectToDatabase();
+    const usersCollection = db.collection('users');
+
+    // Get current wishlist
+    const currentUser = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    if (!currentUser) return res.status(404).json({ message: 'User not found' });
+
+    const wishlist = currentUser.wishlist || [];
+    const productIdStr = String(productId);
+
+    // Toggle: Add if not exists, remove if exists
+    if (wishlist.includes(productIdStr)) {
+      wishlist.splice(wishlist.indexOf(productIdStr), 1);
+    } else {
+      wishlist.push(productIdStr);
+    }
+
+    // Update user wishlist
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { wishlist } }
+    );
+
+    return res.json({ message: 'Wishlist updated', wishlist });
+  } catch (error) {
+    console.error('Error in /wishlist', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// GET /api/misc/wishlist - Get user's wishlist
+router.get('/wishlist', authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const userId = user._id;
+    const db = await connectToDatabase();
+    const usersCollection = db.collection('users');
+
+    const currentUser = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    if (!currentUser) return res.status(404).json({ message: 'User not found' });
+
+    return res.json({ wishlist: currentUser.wishlist || [] });
+  } catch (error) {
+    console.error('Error in GET /wishlist', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 });

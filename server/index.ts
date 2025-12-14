@@ -42,6 +42,40 @@ app.options('*', cors());
 
 app.use(express.json());
 
+// Cache Control Middleware
+app.use((req, res, next) => {
+  // Set cache headers for GET requests
+  if (req.method === 'GET') {
+    const path = req.path;
+
+    // Cache product data for 1 hour
+    if (path.includes('/api/products')) {
+      res.set('Cache-Control', 'public, max-age=3600'); // 1 hour
+    }
+    // Cache category/home data for 24 hours
+    else if (path.includes('/api/categories') || path.includes('/api/home')) {
+      res.set('Cache-Control', 'public, max-age=86400'); // 24 hours
+    }
+    // Don't cache user-specific data
+    else if (path.includes('/api/auth') || path.includes('/api/cart') || path.includes('/api/orders')) {
+      res.set('Cache-Control', 'private, no-cache');
+    }
+    // Cache misc endpoints for 1 hour
+    else if (path.includes('/api/misc')) {
+      res.set('Cache-Control', 'public, max-age=3600');
+    }
+    // Health check - cache for 5 minutes
+    else if (path.includes('/api/health')) {
+      res.set('Cache-Control', 'public, max-age=300');
+    }
+  } else {
+    // Don't cache POST, PUT, DELETE requests
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  }
+
+  next();
+});
+
 // Request logging middleware (helpful for debugging)
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);

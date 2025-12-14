@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ShoppingCart, Star, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Star, Minus, Plus, Heart } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
@@ -52,6 +52,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isInWishlist, setIsInWishlist] = useState(false);
   const { addToCart } = useCart();
   const { user } = useAuth();
 
@@ -62,6 +63,17 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
       try {
         const data = await api.get(`/api/products/${productId}`);
         setProduct(data);
+
+        // Load wishlist status
+        if (user) {
+          try {
+            const wishlistData = await api.get('/api/misc/wishlist');
+            const wishlist = wishlistData.wishlist || [];
+            setIsInWishlist(wishlist.includes(productId));
+          } catch (err) {
+            console.error('Error loading wishlist:', err);
+          }
+        }
       } catch (err: any) {
         setError(err.message || 'An unknown error occurred');
       } finally {
@@ -70,7 +82,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
     }
 
     loadProduct();
-  }, [productId]);
+  }, [productId, user]);
 
   async function handleAddToCart() {
     if (!user) {
@@ -84,6 +96,26 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
       alert('Added to cart!');
     } catch (error) {
       alert('Failed to add to cart');
+    }
+  }
+
+  async function handleAddToWishlist() {
+    if (!user) {
+      alert('Please login to add items to wishlist');
+      return;
+    }
+    if (!product) return;
+
+    try {
+      const response = await api.post('/api/misc/wishlist', { productId: product._id });
+      // Clear wishlist cache so Wishlist page shows updated data
+      api.invalidateCache('/api/misc/wishlist');
+      setIsInWishlist(!isInWishlist);
+      const message = !isInWishlist ? 'Added to wishlist!' : 'Removed from wishlist';
+      alert(message);
+    } catch (error: any) {
+      console.error('Error updating wishlist:', error);
+      alert('Failed to update wishlist. Please try again.');
     }
   }
 
@@ -223,13 +255,27 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
                   </span>
                 </div>
 
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full flex items-center justify-center gap-3 px-8 py-4 btn-brand rounded-lg font-bold text-lg hover:opacity-90 transition-all shadow-glow-primary transform hover:scale-[1.02]"
-                >
-                  <ShoppingCart className="w-6 h-6" />
-                  Add to Cart
-                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleAddToCart}
+                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 btn-brand rounded-lg font-bold text-lg hover:opacity-90 transition-all shadow-glow-primary transform hover:scale-[1.02]"
+                  >
+                    <ShoppingCart className="w-6 h-6" />
+                    Add to Cart
+                  </button>
+                  <motion.button
+                    onClick={handleAddToWishlist}
+                    className={`px-6 py-4 rounded-lg font-bold text-lg border-2 transition-all transform hover:scale-[1.02] ${
+                      isInWishlist
+                        ? 'bg-rose-100 border-rose-500 text-rose-600'
+                        : 'bg-white border-gray-200 text-gray-600 hover:border-rose-400'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Heart className={`w-6 h-6 ${isInWishlist ? 'fill-current' : ''}`} />
+                  </motion.button>
+                </div>
               </motion.div>
             ) : (
               <motion.div className="bg-error/10 border border-error/30 rounded-lg p-4" variants={itemVariants}>

@@ -1,6 +1,8 @@
 // Set this to your Render backend URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://techamrt.onrender.com';
 
+import { apiCache, CACHE_TTL } from './api-cache';
+
 interface ApiResponse<T = any> {
   data?: T;
   message?: string;
@@ -219,6 +221,33 @@ function getAuthHeaders(): HeadersInit {
   return headers;
 }
 
+/**
+ * Get cache TTL based on endpoint
+ */
+function getCacheTTL(endpoint: string): number | null {
+  // Cache products for 30 minutes
+  if (endpoint.includes('/api/products')) {
+    return CACHE_TTL.LONG;
+  }
+  // Cache categories for 1 hour
+  if (endpoint.includes('/api/categories')) {
+    return CACHE_TTL.VERY_LONG;
+  }
+  // Cache search results for 5 minutes
+  if (endpoint.includes('/api/search')) {
+    return CACHE_TTL.MEDIUM;
+  }
+  // Don't cache user-specific endpoints
+  if (endpoint.includes('/api/cart') || endpoint.includes('/api/orders') || endpoint.includes('/api/auth')) {
+    return null;
+  }
+  // Cache misc endpoints for 5 minutes
+  if (endpoint.includes('/api/misc')) {
+    return CACHE_TTL.MEDIUM;
+  }
+  return null;
+}
+
 export const api = {
   async get<T = any>(endpoint: string, options?: { params?: Record<string, any> }): Promise<T> {
     const params = options?.params;
@@ -238,17 +267,41 @@ export const api = {
       if (qs) url += `?${qs}`;
     }
 
+    // Check cache for GET requests
+    const cacheKey = `GET:${url}`;
+    const cacheTTL = getCacheTTL(endpoint);
+    
+    if (cacheTTL !== null) {
+      const cachedData = apiCache.get(cacheKey);
+      if (cachedData) {
+        console.log(`[Cache HIT] ${endpoint}`);
+        return cachedData;
+      }
+    }
+
     const requestOptions: RequestInit = {
       method: 'GET',
       headers: getAuthHeaders(),
     };
 
     const response = await fetch(url, requestOptions);
-    return handleResponse<T>(response, url, requestOptions);
+    const data = await handleResponse<T>(response, url, requestOptions);
+    
+    // Store in cache if TTL is set
+    if (cacheTTL !== null) {
+      apiCache.set(cacheKey, data, cacheTTL);
+      console.log(`[Cache SET] ${endpoint} for ${cacheTTL}ms`);
+    }
+    
+    return data;
   },
 
   async post<T = any>(endpoint: string, data?: any): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
+    
+    // Invalidate related caches on POST
+    this.invalidateCache(endpoint);
+    
     const requestOptions: RequestInit = {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -261,6 +314,10 @@ export const api = {
 
   async put<T = any>(endpoint: string, data?: any): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
+    
+    // Invalidate related caches on PUT
+    this.invalidateCache(endpoint);
+    
     const requestOptions: RequestInit = {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -273,6 +330,10 @@ export const api = {
 
   async delete<T = any>(endpoint: string): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
+    
+    // Invalidate related caches on DELETE
+    this.invalidateCache(endpoint);
+    
     const requestOptions: RequestInit = {
       method: 'DELETE',
       headers: getAuthHeaders(),
@@ -284,6 +345,10 @@ export const api = {
 
   async patch<T = any>(endpoint: string, data?: any): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
+    
+    // Invalidate related caches on PATCH
+    this.invalidateCache(endpoint);
+    
     const requestOptions: RequestInit = {
       method: 'PATCH',
       headers: getAuthHeaders(),
@@ -292,6 +357,35 @@ export const api = {
 
     const response = await fetch(url, requestOptions);
     return handleResponse<T>(response, url, requestOptions);
+  },
+
+  /**
+   * Invalidate cache for related endpoints
+   */
+  invalidateCache(endpoint: string): void {
+    // Invalidate products cache when cart or orders change
+    if (endpoint.includes('/api/cart') || endpoint.includes('/api/orders')) {
+      apiCache.clearPattern('.*products.*');
+    }
+    // Invalidate cart cache when making cart changes
+    if (endpoint.includes('/api/cart')) {
+      apiCache.clear('GET:' + API_BASE_URL + '/api/cart');
+    }
+    // Invalidate orders cache when making order changes
+    if (endpoint.includes('/api/orders')) {
+      apiCache.clearPattern('.*orders.*');
+    }
+    // Invalidate wishlist cache when wishlist changes
+    if (endpoint.includes('/api/misc/wishlist')) {
+      apiCache.clear('GET:' + API_BASE_URL + '/api/misc/wishlist');
+    }
+  },
+
+  /**
+   * Manually clear all cached data
+   */
+  clearCache(): void {
+    apiCache.clearAll();
   },
 };
 

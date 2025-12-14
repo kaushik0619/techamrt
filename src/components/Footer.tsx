@@ -76,6 +76,10 @@ export function Footer({ onNavigate }: FooterProps) {
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
             <li><button onClick={() => onNavigate('contact')} className="text-neutral-400 hover:text-white transition-colors text-sm">Contact Us</button></li>
+            <li><button onClick={() => onNavigate('about-us')} className="text-neutral-400 hover:text-white transition-colors text-sm">About Us</button></li>
+            <li><button onClick={() => onNavigate('privacy-policy')} className="text-neutral-400 hover:text-white transition-colors text-sm">Privacy Policy</button></li>
+            <li><button onClick={() => onNavigate('terms-and-conditions')} className="text-neutral-400 hover:text-white transition-colors text-sm">Terms and Conditions</button></li>
+            <li><button onClick={() => onNavigate('refund-policy')} className="text-neutral-400 hover:text-white transition-colors text-sm">Refund Policy</button></li>
             </ul>
           </div>
 

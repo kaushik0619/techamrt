@@ -17,8 +17,12 @@ import { MyAccount } from './pages/MyAccount';
 import { Contact } from './pages/Contact';
 import { Repair } from './pages/Repair';
 import { Accessories } from './pages/Accessories';
+import AboutUs from './pages/AboutUs';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
+import RefundPolicy from './pages/RefundPolicy';
 
-type Page = 'landing' | 'shop' | 'product' | 'cart' | 'checkout' | 'admin' | 'orders' | 'login' | 'wishlist' | 'account' | 'contact' | 'repair' | 'accessories' | 'reset-password';
+type Page = 'landing' | 'shop' | 'product' | 'cart' | 'checkout' | 'admin' | 'orders' | 'login' | 'wishlist' | 'account' | 'contact' | 'repair' | 'accessories' | 'reset-password' | 'about-us' | 'privacy-policy' | 'terms-and-conditions' | 'refund-policy';
 
 function App() {
   const initialPage: Page = window.location.pathname === '/reset-password' ? 'reset-password' : 'landing';
@@ -68,6 +72,10 @@ function App() {
       else if (page === 'account') url = '/account';
       else if (page === 'contact') url = '/contact';
       else if (page === 'repair') url = '/repair';
+      else if (page === 'about-us') url = '/about-us';
+      else if (page === 'privacy-policy') url = '/privacy-policy';
+      else if (page === 'terms-and-conditions') url = '/terms-and-conditions';
+      else if (page === 'refund-policy') url = '/refund-policy';
       else if (page === 'reset-password') url = '/reset-password';
       else url = '/';
       window.history.pushState(state, '', url);
@@ -141,6 +149,14 @@ function App() {
         return <Contact />;
       case 'repair':
         return <Repair />;
+      case 'about-us':
+        return <AboutUs />;
+      case 'privacy-policy':
+        return <PrivacyPolicy />;
+      case 'terms-and-conditions':
+        return <TermsAndConditions />;
+      case 'refund-policy':
+        return <RefundPolicy />;
       case 'reset-password':
         return <ResetPassword onSuccess={handleResetSuccess} />;
       default:
