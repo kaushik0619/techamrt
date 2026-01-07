@@ -24,16 +24,22 @@ interface AccessoriesProps {
 }
 
 const brandLogos: { [key: string]: string } = {
-  'Apple': '/Apple.png',
+  'Apple': '/apple.jpg',
   'Samsung': '/Samsung.jpg',
   'Google': '/Google.jpg',
   'OnePlus': '/OnePlus.jpg',
   'Xiaomi': '/Xiaomi.jpg',
-  'POCO': '/OnePlus.jpg', // Use OnePlus as placeholder if POCO image not available
+  'POCO': '/poco_logo.jpg',
   'Infinix': '/Infinix.jpg',
   'Motorola': '/Motorola.jpg',
   'Nothing': '/Nothing.jpg',
   'Realme': '/Realme.jpg',
+  'Oppo': '/oppo.jpg',
+  'Vivo': '/vivo.jpg',
+  'Honor': '/honor_logo.jpg',
+  'IQOO': '/iqoo_logo.jpg',
+  'Nokia': '/nokia_logo.jpg',
+  'Asus': '/asus_logo.jpg',
 };
 
 function getLogoForBrand(brand: string) {
@@ -435,12 +441,13 @@ export function Accessories({ onSelectProduct, category, subcategory }: Accessor
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleBrandSelect(brand)}
-                className="bg-white border border-neutral-200 rounded-xl p-8 flex justify-center items-center cursor-pointer transition-shadow hover:shadow-lg"
+                className="bg-white border border-neutral-200 rounded-xl p-8 flex justify-center items-center cursor-pointer transition-shadow hover:shadow-lg min-h-[200px]"
               >
                 <img 
-                  src={getLogoForBrand(brand) || `https://via.placeholder.com/150x50?text=${brand}`} 
+                  src={getLogoForBrand(brand)} 
                   alt={brand} 
-                  className="h-12 object-contain"
+                  className="h-20 w-auto object-contain max-w-[90%] flex-shrink-0"
+                  loading="eager"
                 />
               </motion.div>
             ))}
