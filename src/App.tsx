@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './hooks/useCart';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { ToastProvider } from './contexts/ToastContext';
 import { ProductList } from './pages/ProductList';
 import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
@@ -32,6 +33,65 @@ function App() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | undefined>(undefined);
   const [selectedSearch, setSelectedSearch] = useState<string | undefined>(undefined);
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>(undefined);
+
+  // Parse URL on mount to handle page refresh and direct navigation
+  useEffect(() => {
+    const pathname = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+    
+    // Handle different routes
+    if (pathname === '/' || pathname === '') {
+      setCurrentPage('landing');
+    } else if (pathname.startsWith('/shop')) {
+      setCurrentPage('shop');
+      const parts = pathname.split('/').filter(Boolean);
+      if (parts.length > 1) setSelectedCategory(parts[1]);
+      if (parts.length > 2) setSelectedSubcategory(decodeURIComponent(parts[2]));
+      if (searchParams.has('search')) setSelectedSearch(searchParams.get('search') || undefined);
+      if (searchParams.has('brand')) setSelectedBrand(searchParams.get('brand') || undefined);
+    } else if (pathname.startsWith('/product/')) {
+      const productId = pathname.split('/').pop();
+      if (productId) {
+        setCurrentPage('product');
+        setSelectedProductId(productId);
+      }
+    } else if (pathname.startsWith('/accessories')) {
+      setCurrentPage('accessories');
+      const parts = pathname.split('/').filter(Boolean);
+      if (parts.length > 1) setSelectedCategory(parts[1]);
+    } else if (pathname === '/cart') {
+      setCurrentPage('cart');
+    } else if (pathname === '/checkout') {
+      setCurrentPage('checkout');
+    } else if (pathname === '/login') {
+      setCurrentPage('login');
+    } else if (pathname === '/reset-password') {
+      setCurrentPage('reset-password');
+    } else if (pathname === '/orders') {
+      setCurrentPage('orders');
+    } else if (pathname === '/admin') {
+      setCurrentPage('admin');
+    } else if (pathname === '/wishlist') {
+      setCurrentPage('wishlist');
+    } else if (pathname === '/account') {
+      setCurrentPage('account');
+    } else if (pathname === '/contact') {
+      setCurrentPage('contact');
+    } else if (pathname === '/repair') {
+      setCurrentPage('repair');
+    } else if (pathname === '/about-us') {
+      setCurrentPage('about-us');
+    } else if (pathname === '/privacy-policy') {
+      setCurrentPage('privacy-policy');
+    } else if (pathname === '/terms-and-conditions') {
+      setCurrentPage('terms-and-conditions');
+    } else if (pathname === '/refund-policy') {
+      setCurrentPage('refund-policy');
+    } else {
+      // Fallback to landing for unknown routes
+      setCurrentPage('landing');
+    }
+  }, []);
 
   function handleNavigate(page: string, category?: string, subcategory?: string, search?: string, brand?: string) {
     // Special routing for the new accessories page flow or spare parts
@@ -105,6 +165,13 @@ function App() {
   }
 
   function handleLoginSuccess() {
+    const redirect = sessionStorage.getItem('postAuthRedirect');
+    if (redirect === 'checkout') {
+      setCurrentPage('checkout');
+      sessionStorage.removeItem('postAuthRedirect');
+      try { window.history.pushState({ page: 'checkout' }, '', '/checkout'); } catch {}
+      return;
+    }
     setCurrentPage('landing');
   }
 
@@ -132,7 +199,7 @@ function App() {
       case 'product':
         return selectedProductId && <ProductDetail productId={selectedProductId} onBack={() => handleNavigate('shop')} />;
       case 'cart':
-        return <Cart onCheckout={handleCheckout} />;
+        return <Cart onCheckout={handleCheckout} onNavigate={handleNavigate} />;
       case 'checkout':
         return <Checkout onSuccess={handleCheckoutSuccess} />;
       case 'admin':
@@ -213,13 +280,15 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen bg-white flex flex-col">
-          {currentPage !== 'login' && currentPage !== 'reset-password' && (
-            <Navbar onNavigate={handleNavigate} currentPage={currentPage} />
-          )}
-          <main className="flex-grow">{renderPage()}</main>
-          {currentPage !== 'login' && currentPage !== 'reset-password' && <Footer onNavigate={handleNavigate} />}
-        </div>
+        <ToastProvider>
+          <div className="min-h-screen bg-white flex flex-col">
+            {currentPage !== 'login' && currentPage !== 'reset-password' && (
+              <Navbar onNavigate={handleNavigate} currentPage={currentPage} />
+            )}
+            <main className="flex-grow">{renderPage()}</main>
+            {currentPage !== 'login' && currentPage !== 'reset-password' && <Footer onNavigate={handleNavigate} />}
+          </div>
+        </ToastProvider>
       </CartProvider>
     </AuthProvider>
   );

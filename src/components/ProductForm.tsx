@@ -10,6 +10,11 @@ interface ProductFormProps {
   productId?: string;
 }
 
+interface Variant {
+  name: string; // e.g., 'Color', 'Size', 'Model'
+  options: string[]; // e.g., ['Red', 'Blue', 'Black']
+}
+
 interface ProductFormData {
   name: string;
   description: string;
@@ -29,6 +34,8 @@ interface ProductFormData {
   stock: number;
   images: string[];
   specs: { [key: string]: string };
+  // Variants support
+  variants?: Variant[];
 }
 
 const categories = [
@@ -54,6 +61,7 @@ export function ProductForm({ onClose, onSuccess, initialProduct, productId }: P
     stock: 0,
     images: [],
     specs: {},
+    variants: [],
   });
 
   // populate when editing
@@ -76,6 +84,7 @@ export function ProductForm({ onClose, onSuccess, initialProduct, productId }: P
         stock: p.stock ?? prev.stock,
         images: p.images || prev.images,
         specs: p.specs || prev.specs,
+        variants: (p.variants && Array.isArray(p.variants)) ? p.variants : [],
       }));
       // populate per-category subcategory selections if provided
       if (p.categoriesDetails && Array.isArray(p.categoriesDetails)) {
@@ -233,6 +242,8 @@ export function ProductForm({ onClose, onSuccess, initialProduct, productId }: P
         stock: formData.stock,
         images: formData.images,
         specs: Object.keys(formData.specs).length > 0 ? formData.specs : null,
+        // Include variants if any
+        variants: (formData.variants || []).filter(v => v.name && v.options.length > 0),
       };
       // include categories array (unique, include primary category)
       const chosenPrimary = submitCategory || formData.category;
@@ -720,7 +731,79 @@ export function ProductForm({ onClose, onSuccess, initialProduct, productId }: P
             )}
           </div>
 
-          {/* Submit Buttons */}
+          {/* Variants */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Variants (Optional)</h3>
+            <p className="text-sm text-gray-600">Add variants like Color, Size, or Model to give customers more choices.</p>
+            
+            <div className="space-y-3">
+              {(formData.variants || []).map((variant, variantIdx) => (
+                <div key={variantIdx} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Variant Name (e.g., Color, Size)</label>
+                      <input
+                        type="text"
+                        value={variant.name}
+                        onChange={(e) => {
+                          const newVariants = [...(formData.variants || [])];
+                          newVariants[variantIdx].name = e.target.value;
+                          setFormData(prev => ({ ...prev, variants: newVariants }));
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="e.g., Color"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          variants: (prev.variants || []).filter((_, i) => i !== variantIdx)
+                        }));
+                      }}
+                      className="ml-4 p-2 text-red-600 hover:bg-red-50 rounded"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Options (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={variant.options.join(', ')}
+                    onChange={(e) => {
+                      const newVariants = [...(formData.variants || [])];
+                      newVariants[variantIdx].options = e.target.value
+                        .split(',')
+                        .map(opt => opt.trim())
+                        .filter(Boolean);
+                      setFormData(prev => ({ ...prev, variants: newVariants }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., Red, Blue, Black"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {variant.options.length} option(s): {variant.options.join(', ') || 'none'}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setFormData(prev => ({
+                  ...prev,
+                  variants: [...(prev.variants || []), { name: '', options: [] }]
+                }));
+              }}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Variant Option
+            </button>
+          </div>
           <div className="flex gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"

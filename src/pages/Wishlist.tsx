@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { api } from '../lib/api';
+import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../hooks/useCart';
 
@@ -22,6 +23,7 @@ export function Wishlist() {
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const toastApi = useToast();
 
   useEffect(() => {
     async function loadWishlist() {
@@ -69,18 +71,18 @@ export function Wishlist() {
       // Clear cache and refetch
       api.invalidateCache('/api/misc/wishlist');
       setWishlistProducts(prev => prev.filter(p => p._id !== productId));
-      alert('Removed from wishlist');
+      toastApi.toast('Removed from wishlist');
     } catch (error) {
-      alert('Failed to remove from wishlist');
+      toastApi.error('Failed to remove from wishlist');
     }
   }
 
   async function handleAddToCart(product: WishlistProduct) {
     try {
       await addToCart(product._id, 1);
-      alert('Added to cart!');
+      toastApi.success('Added to cart!');
     } catch (error) {
-      alert('Failed to add to cart');
+      toastApi.error('Failed to add to cart');
     }
   }
 

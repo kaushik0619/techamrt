@@ -7,13 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Keep original primary (purple) so text uses the previous color by default
-        primary: '#9E7FFF',
-        // Compatibility keys used in templates (preserve existing utility class names)
-        'primary-DEFAULT': '#9E7FFF',
-        'primary-hover': '#8B6BFF',
-        secondary: '#38bdf8',
-        accent: '#f472b6',
+        // Brand primary color (replaced purple with brand coral/orange)
+        primary: '#E33B57',
+        // Compatibility keys used in templates (now using brand color)
+        'primary-DEFAULT': '#E33B57',
+        'primary-hover': '#D02A47',
+        secondary: '#F59B2E',
+        accent: '#2AA7DF',
         background: '#171717',
         surface: '#262626',
         text: '#FFFFFF',

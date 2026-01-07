@@ -32,7 +32,7 @@ const slides = [
     subtitle: 'Find cases and accessories that match your lifestyle.',
     image: '/samsungfold.png',
     buttonText: 'Shop Covers',
-    buttonAction: { page: 'shop', category: 'accessories', subcategory: 'Phone', brand: 'Samsung' },
+    buttonAction: { page: 'shop', category: 'covers', brand: 'Samsung' },
   },
 ];
 
@@ -533,7 +533,7 @@ export function Landing({ onNavigate, onSelectProduct }: LandingProps) {
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => onNavigate('shop')}
+              onClick={() => onNavigate('shop', 'accessories', 'Phone', undefined, 'Apple')}
               className="btn-brand px-6 py-3 shadow-lg"
             >
               Shop Cases

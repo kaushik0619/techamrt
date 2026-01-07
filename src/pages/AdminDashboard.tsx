@@ -166,13 +166,13 @@ export function AdminDashboard() {
             <div className="text-orange-100">Total Customers</div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+          <div className="bg-gradient-to-br from-[#E33B57] to-[#D02A47] rounded-2xl shadow-lg p-6 text-white">
             <div className="flex items-center justify-between mb-4">
               <Package className="w-12 h-12 opacity-80" />
               <TrendingUp className="w-6 h-6" />
             </div>
             <div className="text-3xl font-bold mb-1">{stats.totalProducts}</div>
-            <div className="text-purple-100">Total Products</div>
+            <div className="text-red-100">Total Products</div>
           </div>
         </div>
 

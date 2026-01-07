@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { CreditCard, MapPin, Check } from 'lucide-react';
 import { api } from '../lib/api';
 
@@ -9,6 +11,8 @@ interface CheckoutProps {
 
 export function Checkout({ onSuccess }: CheckoutProps) {
   const { items, total, clearCart } = useCart();
+  const { user } = useAuth();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'address' | 'payment'>('address');
 
@@ -72,19 +76,19 @@ export function Checkout({ onSuccess }: CheckoutProps) {
 
           handler: async function (response: any) {
             try {
-              const verifyResp: any = await api.post('/api/payment/razorpay/verify', {
+                const verifyResp: any = await api.post('/api/payment/razorpay/verify', {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 shippingAddress: address,
               });
 
-              clearCart();
-              alert('Payment successful and order created!');
+                  clearCart();
+                  toast.success('Payment successful and order created!');
               onSuccess();
             } catch (verErr: any) {
               console.error('Verification error', verErr);
-              alert(verErr?.message || 'Payment succeeded but verification failed. Contact support.');
+                  toast.error(verErr?.message || 'Payment succeeded but verification failed. Contact support.');
             }
           },
 
@@ -101,7 +105,7 @@ export function Checkout({ onSuccess }: CheckoutProps) {
         try {
           rzp.on('payment.failed', function (resp: any) {
             console.error('Razorpay payment.failed event:', resp);
-            alert('Payment failed: ' + (resp?.error?.description || resp?.error?.reason || 'Unknown error'));
+            toast.error('Payment failed: ' + (resp?.error?.description || resp?.error?.reason || 'Unknown error'));
           });
         } catch (err) {
           console.warn('Razorpay on(payment.failed) not available', err);
@@ -118,7 +122,7 @@ export function Checkout({ onSuccess }: CheckoutProps) {
           rzp.open();
         } catch (openErr) {
           console.error('Error opening Razorpay checkout:', openErr);
-          alert('Unable to open Razorpay checkout: ' + (openErr && openErr.message));
+          toast.error('Unable to open Razorpay checkout: ' + (openErr && openErr.message));
         }
 
       } else {
@@ -130,16 +134,34 @@ export function Checkout({ onSuccess }: CheckoutProps) {
         const response = await api.post('/api/orders', orderData);
 
         clearCart();
-        alert('Order placed successfully!');
+        toast.success('Order placed successfully!');
         onSuccess();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error placing order:', error);
-      alert(error.message || 'Failed to place order. Please try again.');
+      const errMsg =
+        error instanceof Error
+          ? error.message
+          : typeof error === 'string'
+          ? error
+          : error
+          ? String(error)
+          : '';
+      toast.error(errMsg || 'Failed to place order. Please try again.');
     } finally {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // If user is not authenticated, redirect to login and preserve post-auth redirect
+    if (!user) {
+      try { sessionStorage.setItem('postAuthRedirect', 'checkout'); } catch {}
+      try { window.history.pushState({ page: 'login' }, '', '/login'); } catch {}
+      // reload to let App render the login page
+      window.location.href = '/login';
+    }
+  }, [user]);
 
   /* ---------- UI BELOW (UNCHANGED) ---------- */
 

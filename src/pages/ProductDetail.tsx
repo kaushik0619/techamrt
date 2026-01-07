@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, ShoppingCart, Star, Minus, Plus, Heart } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -55,6 +56,7 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const toast = useToast();
 
   useEffect(() => {
     async function loadProduct() {
@@ -85,23 +87,19 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
   }, [productId, user]);
 
   async function handleAddToCart() {
-    if (!user) {
-      alert('Please login to add items to cart');
-      return;
-    }
     if (!product) return;
-
     try {
       await addToCart(product._id, quantity);
-      alert('Added to cart!');
-    } catch (error) {
-      alert('Failed to add to cart');
+      toast.success('Added to cart!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to add to cart');
     }
   }
 
   async function handleAddToWishlist() {
     if (!user) {
-      alert('Please login to add items to wishlist');
+      toast.error('Please login to add items to wishlist');
       return;
     }
     if (!product) return;
@@ -112,10 +110,10 @@ export function ProductDetail({ productId, onBack }: ProductDetailProps) {
       api.invalidateCache('/api/misc/wishlist');
       setIsInWishlist(!isInWishlist);
       const message = !isInWishlist ? 'Added to wishlist!' : 'Removed from wishlist';
-      alert(message);
+      toast.success(message);
     } catch (error: any) {
       console.error('Error updating wishlist:', error);
-      alert('Failed to update wishlist. Please try again.');
+      toast.error('Failed to update wishlist. Please try again.');
     }
   }
 

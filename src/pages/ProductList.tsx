@@ -475,9 +475,9 @@ export function ProductList({ onSelectProduct, initialCategory, initialSubcatego
               </div>
             ) : (
               <>
-                <div className="flex overflow-x-auto gap-6 pb-4 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-6 scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
+                <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 scrollbar-hide">
                   {filteredProducts.map((product) => (
-                    <div key={product._id} className="w-72 flex-shrink-0 md:w-auto">
+                    <div key={product._id} className="w-full">
                       <ProductCard product={product} onSelectProduct={onSelectProduct} />
                     </div>
                   ))}

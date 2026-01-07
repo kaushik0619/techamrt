@@ -6,7 +6,7 @@ import { useCart } from '../hooks/useCart';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface NavbarProps {
-  onNavigate: (page: string, category?: string, subcategory?: string) => void;
+  onNavigate: (page: string, category?: string, subcategory?: string, search?: string, brand?: string) => void;
   currentPage: string;
 }
 
@@ -121,6 +121,8 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
               {navItems.map((item) => {
                 const hasDropdown = !!item.subItems;
                 const isShopItem = item.page === 'shop';
+                // Make Accessories and Spare Parts non-clickable if they have sub-items
+                const isNonClickable = hasDropdown && (item.name === 'Accessories' || item.name === 'Spare Parts');
                 
                 return (
                   <div
@@ -130,8 +132,8 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                     onMouseLeave={() => hasDropdown && setHoveredItem(null)}
                   >
                     <button 
-                      onClick={() => handleNavItemClick(item.page, item.category)} 
-                      className={`${navLinkClasses(item.page, isShopItem)} flex items-center gap-1`}
+                      onClick={() => !isNonClickable && handleNavItemClick(item.page, item.category)} 
+                      className={`${navLinkClasses(item.page, isShopItem)} flex items-center gap-1 ${isNonClickable ? 'cursor-default' : 'cursor-pointer'}`}
                     >
                       {item.name}
                       {hasDropdown && <ChevronDown className="w-4 h-4" />}
@@ -188,6 +190,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                         <p className="text-sm font-medium">{user.username}</p>
                         <p className="text-xs text-neutral-500">{user.email}</p>
                       </div>
+                      {user.role === 'admin' && (
                       <button
                         onClick={() => {
                           handleNavItemClick('admin');
@@ -198,6 +201,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                         <LayoutDashboard className="w-4 h-4" />
                         Dashboard
                       </button>
+                      )}
                       <button
                         onClick={() => {
                           handleNavItemClick('orders');
@@ -255,11 +259,15 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
               </button>
             </div>
             <nav className="flex flex-col gap-6">
-              {navItems.map(item => (
+              {navItems.map(item => {
+                const hasDropdown = !!item.subItems;
+                const isNonClickable = hasDropdown && (item.name === 'Accessories' || item.name === 'Spare Parts');
+                
+                return (
                 <Fragment key={item.name}>
                   <button 
-                    onClick={() => handleMobileNavClick(item.page, item.category)} 
-                    className="text-left text-lg font-medium text-neutral-300 hover:text-primary-DEFAULT transition-colors"
+                    onClick={() => !isNonClickable && handleMobileNavClick(item.page, item.category)} 
+                    className={`text-left text-lg font-medium text-neutral-300 hover:text-primary-DEFAULT transition-colors ${isNonClickable ? 'cursor-default opacity-75' : 'cursor-pointer'}`}
                   >
                     {item.name}
                   </button>
@@ -277,7 +285,8 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                     </div>
                   )}
                 </Fragment>
-              ))}
+                );
+              })}
               
               {/* Authentication-related items for mobile */}
               <div className="border-t border-neutral-800 pt-6 mt-2">
@@ -287,6 +296,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                       <p className="text-sm font-medium text-neutral-300">{user.username}</p>
                       <p className="text-xs text-neutral-500">{user.email}</p>
                     </div>
+                    {user.role === 'admin' && (
                     <button
                       onClick={() => {
                         handleMobileNavClick('admin');
@@ -296,6 +306,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
                       <LayoutDashboard className="w-5 h-5" />
                       Dashboard
                     </button>
+                    )}
                     <button
                       onClick={() => {
                         handleMobileNavClick('orders');

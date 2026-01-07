@@ -46,5 +46,9 @@ export default defineConfig({
         secure: false,
       },
     },
+    middlewareMode: false,
+  },
+  preview: {
+    middlewareMode: false,
   },
 })

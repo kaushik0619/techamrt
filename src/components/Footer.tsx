@@ -1,5 +1,6 @@
 import { Instagram, Send } from 'lucide-react';
 import { useState } from 'react';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../lib/api';
 import { FaWhatsapp, FaTelegramPlane } from "react-icons/fa";
 
@@ -11,6 +12,7 @@ function NewsletterForm() {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const { error } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +23,7 @@ function NewsletterForm() {
       setSubmitted(true);
     } catch (err) {
       console.error('Newsletter subscribe failed', err);
-      alert('Failed to subscribe. Please try again later.');
+      error('Failed to subscribe. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }

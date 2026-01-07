@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useToast } from '../contexts/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../lib/api';
 import { Wrench, Smartphone, ShieldCheck, Clock, ChevronLeft, CheckCircle } from 'lucide-react';
@@ -21,7 +22,7 @@ const repairBrands: Brand[] = [
   {
     id: 'apple',
     name: 'Apple',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg',
+    logoUrl: '/Apple.png',
     models: [
       { id: 'iphone 17 pro max', name: 'iPhone 17 pro max', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
       { id: 'iphone 17 pro', name: 'iPhone 17 pro', imageUrl: 'https://images.pexels.com/photos/4065624/pexels-photo-4065624.jpeg?auto=compress&cs=tinysrgb&w=400' },
@@ -72,7 +73,7 @@ const repairBrands: Brand[] = [
   {
     id: 'samsung',
     name: 'Samsung',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg',
+    logoUrl: '/Samsung.jpg',
     models: [
       { id: 'galaxy-s24-ultra', name: 'Galaxy S24 Ultra', imageUrl: 'https://images.pexels.com/photos/20492307/pexels-photo-20492307.jpeg?auto=compress&cs=tinysrgb&w=400' },
       { id: 'galaxy-s24', name: 'Galaxy S24', imageUrl: 'https://images.pexels.com/photos/15598183/pexels-photo-15598183.jpeg?auto=compress&cs=tinysrgb&w=400' },
@@ -84,7 +85,7 @@ const repairBrands: Brand[] = [
   {
     id: 'google',
     name: 'Google',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+    logoUrl: '/Google.jpg',
     models: [
       { id: 'pixel-8-pro', name: 'Pixel 8 Pro', imageUrl: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400' },
       { id: 'pixel-8', name: 'Pixel 8', imageUrl: 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400' },
@@ -95,7 +96,7 @@ const repairBrands: Brand[] = [
   {
     id: 'oneplus',
     name: 'OnePlus',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/OnePlus_logo.svg',
+    logoUrl: '/OnePlus.jpg',
     models: [
       { id: 'oneplus-12', name: 'OnePlus 12', imageUrl: 'https://images.pexels.com/photos/1478276/pexels-photo-1478276.jpeg?auto=compress&cs=tinysrgb&w=400' },
       { id: 'oneplus-open', name: 'OnePlus Open', imageUrl: 'https://images.pexels.com/photos/1036804/pexels-photo-1036804.jpeg?auto=compress&cs=tinysrgb&w=400' },
@@ -158,6 +159,7 @@ function RepairBookingFlow() {
   const [selectedModel, setSelectedModel] = useState<DeviceModel | null>(null);
   const [issueDetails, setIssueDetails] = useState({ problem: '', name: '', phone: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useToast();
 
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const brand = repairBrands.find(b => b.id === e.target.value);
@@ -204,8 +206,7 @@ function RepairBookingFlow() {
       } catch (err) {
         console.error('Repair submit failed', err);
         setIsSubmitting(false);
-        // Optionally show error to user
-        alert('Failed to submit repair request. Please try again later.');
+        toast.error('Failed to submit repair request. Please try again later.');
       }
     })();
   };
@@ -379,7 +380,7 @@ export function Repair() {
           transition={{ duration: 0.7 }}
           className="relative z-10 max-w-4xl mx-auto px-4"
         >
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-[#E33B57] via-[#F59B2E] to-[#2AA7DF] bg-clip-text text-transparent">
             Expert Smartphone Repair
           </h1>
           <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">

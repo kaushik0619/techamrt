@@ -1,12 +1,15 @@
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CartProps {
   onCheckout: () => void;
+  onNavigate?: (page: string) => void;
 }
 
-export function Cart({ onCheckout }: CartProps) {
+export function Cart({ onCheckout, onNavigate }: CartProps) {
   const { items, loading, updateQuantity, removeFromCart, total, itemCount } = useCart();
+  const { user } = useAuth();
 
   if (loading) {
     return (
@@ -119,7 +122,15 @@ export function Cart({ onCheckout }: CartProps) {
               </div>
 
               <button
-                onClick={onCheckout}
+                onClick={() => {
+                  if (!user) {
+                    // Save intended redirect and send to login/register
+                    try { sessionStorage.setItem('postAuthRedirect', 'checkout'); } catch {}
+                    if (onNavigate) onNavigate('login');
+                    return;
+                  }
+                  onCheckout();
+                }}
                 className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/30 hover:shadow-xl"
               >
                 <span>Proceed to Checkout</span>

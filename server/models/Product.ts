@@ -1,5 +1,10 @@
 import { ObjectId } from 'mongodb';
 
+export interface Variant {
+  name: string; // e.g., 'Color', 'Size', 'Model'
+  options: string[]; // e.g., ['Red', 'Blue', 'Black']
+}
+
 export interface Product {
   _id?: ObjectId;
   name: string;
@@ -20,6 +25,8 @@ export interface Product {
   stock: number;
   images: string[];
   specs: Record<string, any> | null;
+  // Variants support (e.g., color, size, model)
+  variants?: Variant[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -40,6 +47,8 @@ export interface ProductInsert {
   stock?: number;
   images?: string[];
   specs?: Record<string, any> | null;
+  // Variants support
+  variants?: Variant[];
 }
 
 export interface ProductUpdate {
@@ -57,5 +66,6 @@ export interface ProductUpdate {
   stock?: number;
   images?: string[];
   specs?: Record<string, any> | null;
+  variants?: Variant[];
   updatedAt?: Date;
 }

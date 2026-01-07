@@ -1,6 +1,7 @@
 import { Phone, Mail, MapPin, ChevronDown, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../lib/api';
 
 const faqs = [
@@ -76,6 +77,7 @@ function ContactForm() {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const { error } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +87,7 @@ function ContactForm() {
       setSubmitted(true);
     } catch (err) {
       console.error('Contact submit failed', err);
-      alert('Failed to send message. Please try again later.');
+      error('Failed to send message. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
@@ -142,7 +144,7 @@ export function Contact() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight animate-gradient-text bg-gradient-to-r from-primary via-secondary to-accent">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-[#E33B57] via-[#F59B2E] to-[#2AA7DF] text-transparent bg-clip-text">
             Get in Touch
           </h1>
           <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">
